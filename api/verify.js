@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    /* ── 2. Xác thực với Plati (thử từng goods_id tự động) ──────────── */
+    /* ── 2. Verify with Plati API ────────────────────────────────────── */
     let platiInfo;
     try {
       platiInfo = await verifyUniqueCode(code);
@@ -49,7 +49,18 @@ module.exports = async (req, res) => {
       return res.status(400).json({ success: false, error: err.message });
     }
 
-    // platiInfo now includes: productType, productName, sheetName (from plati.js)
+    /* ── 2b. Optional email check (manual mode only) ─────────────────── */
+    const emailParam = (req.query.email || '').trim().toLowerCase();
+    const buyerEmail = (platiInfo.buyer || '').trim().toLowerCase();
+    if (emailParam && buyerEmail && buyerEmail !== 'unknown') {
+      if (emailParam !== buyerEmail) {
+        return res.status(403).json({
+          success: false,
+          error: 'Email does not match the purchase email. / Email не совпадает с email при покупке.',
+        });
+      }
+    }
+
     const { productType, productName, sheetName } = platiInfo;
 
     /* ── 3. Lấy tài khoản từ đúng sheet sản phẩm ────────────────────── */

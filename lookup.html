@@ -1,226 +1,209 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tra Cứu Đơn Hàng – CapCut Delivery</title>
-  <meta name="description" content="Tra cứu lại tài khoản CapCut Pro đã mua bằng Unique Code và địa chỉ email." />
+  <title>Look Up Order – CapCut Delivery</title>
+  <meta name="description" content="Look up your CapCut Pro account using your Unique Code and purchase email." />
   <link rel="stylesheet" href="style.css" />
   <style>
-    .plan-badge { display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:13px;font-weight:700;margin-bottom:14px; }
-    .plan-7d  { background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.35);color:#22d3ee; }
-    .plan-1m  { background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.35);color:#a78bfa; }
-    .plan-6m  { background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);color:#fbbf24; }
+    .lang-toggle{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px}
+    .lang-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+    .lang-btn.active{background:rgba(255,45,85,.15);border-color:rgba(255,45,85,.4);color:var(--text)}
+    .plan-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:13px;font-weight:700;margin-bottom:14px}
+    .plan-7d{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);color:#22d3ee}
+    .plan-1m{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.35);color:#a78bfa}
+    .plan-6m{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#fbbf24}
   </style>
 </head>
 <body>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
+<div class="lang-toggle">
+  <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+  <button class="lang-btn" id="btn-ru" onclick="setLang('ru')">🇷🇺 RU</button>
+</div>
 
 <div class="page-wrapper">
-
-  <!-- Logo -->
   <div class="logo-wrap">
     <div class="logo-icon">🎬</div>
     <div class="logo-title">CapCut Delivery</div>
-    <div class="logo-sub">Tra cứu đơn hàng</div>
+    <div class="logo-sub" data-i18n="subtitle">Order Lookup</div>
   </div>
 
-  <!-- Card -->
   <div class="card">
 
-    <!-- Form -->
+    <!-- FORM -->
     <div id="lookup-form">
-      <div class="section-title">🔍 Tra cứu đơn hàng</div>
-      <div class="section-desc">
-        Nhập <strong>Unique Code</strong> và <strong>email bạn dùng khi mua hàng</strong> trên Plati.market để xem lại tài khoản CapCut Pro của bạn.
-      </div>
+      <div class="section-title" data-i18n="title">🔍 Look Up Your Order</div>
+      <div class="section-desc" data-i18n="desc">Enter your <strong>Unique Code</strong> and the <strong>email you used on Plati.market</strong> to view your CapCut Pro account details.</div>
 
       <div class="form-group">
-        <label class="form-label" for="input-code">Unique Code</label>
-        <input id="input-code" class="form-input" type="text"
-               placeholder="Nhập unique code từ Plati..." autocomplete="off"
+        <label class="form-label" data-i18n="uniqueCode">Unique Code</label>
+        <input id="input-code" class="form-input" type="text" autocomplete="off"
                onkeydown="if(event.key==='Enter')document.getElementById('input-email').focus()" />
       </div>
-
       <div class="form-group">
-        <label class="form-label" for="input-email">Email đã mua hàng</label>
+        <label class="form-label" data-i18n="emailPurchase">Email used for purchase</label>
         <input id="input-email" class="form-input" type="email"
-               placeholder="email@example.com"
                onkeydown="if(event.key==='Enter')submitLookup()" />
       </div>
 
       <div id="lookup-error" style="display:none;margin-bottom:14px">
-        <div style="background:rgba(255,45,85,0.08);border:1px solid rgba(255,45,85,0.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#ff7095;line-height:1.5">
-          ❌ <span id="lookup-error-msg">Lỗi.</span>
+        <div style="background:rgba(255,45,85,.08);border:1px solid rgba(255,45,85,.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#ff7095;line-height:1.5">
+          ❌ <span id="lookup-error-msg"></span>
         </div>
       </div>
 
       <button class="btn-primary" id="lookup-btn" onclick="submitLookup()">
-        🔍 Tra cứu ngay
+        🔍 <span data-i18n="searchBtn">Search Order</span>
       </button>
 
       <div style="margin-top:20px;text-align:center;font-size:13px;color:var(--muted)">
-        Mua mới?
-        <a href="/" style="color:var(--red2);text-decoration:none">Nhận tài khoản →</a>
+        <span data-i18n="newPurchase">New purchase?</span>
+        <a href="/" style="color:var(--red2);text-decoration:none"> <span data-i18n="getAccount">Get your account →</span></a>
       </div>
     </div>
 
-    <!-- Result -->
+    <!-- RESULT -->
     <div id="lookup-result" style="display:none">
-      <div class="success-badge">✓ Tìm thấy đơn hàng</div>
-
-      <div style="margin-bottom:14px">
-        <span id="res-plan-badge" class="plan-badge plan-1m">✨ CapCut Pro</span>
-      </div>
-
-      <div class="product-name">
-        <span>🎬</span>
-        <span id="res-product">CapCut Pro Account</span>
-      </div>
+      <div class="success-badge" data-i18n="found">✓ Order found</div>
+      <div style="margin-bottom:14px"><span id="res-plan-badge" class="plan-badge plan-1m">✨ CapCut Pro</span></div>
+      <div class="product-name"><span>🎬</span><span id="res-product">CapCut Pro Account</span></div>
 
       <div class="credential-box">
-        <div class="credential-label">📧 Địa chỉ Email</div>
+        <div class="credential-label" data-i18n="emailLabel">📧 Email Address</div>
         <div class="credential-row">
           <div class="credential-value" id="res-email">—</div>
-          <button class="copy-btn" onclick="copyText('res-email', this)">
-            <span>📋</span> Sao chép
-          </button>
+          <button class="copy-btn" onclick="copyText('res-email',this)">📋 <span data-i18n="copy">Copy</span></button>
         </div>
       </div>
-
       <div class="credential-box">
-        <div class="credential-label">🔑 Mật khẩu</div>
+        <div class="credential-label" data-i18n="passwordLabel">🔑 Password</div>
         <div class="credential-row">
           <div class="credential-value" id="res-password">—</div>
-          <button class="copy-btn" onclick="copyText('res-password', this)">
-            <span>📋</span> Sao chép
-          </button>
+          <button class="copy-btn" onclick="copyText('res-password',this)">📋 <span data-i18n="copy">Copy</span></button>
         </div>
       </div>
 
       <div class="order-info">
-        <div class="order-info-item">
-          <div class="order-info-label">Unique Code</div>
-          <div class="order-info-value" id="res-code">—</div>
-        </div>
-        <div class="order-info-item">
-          <div class="order-info-label">Ngày mua</div>
-          <div class="order-info-value" id="res-date">—</div>
-        </div>
+        <div class="order-info-item"><div class="order-info-label" data-i18n="labelCode">Unique Code</div><div class="order-info-value" id="res-code">—</div></div>
+        <div class="order-info-item"><div class="order-info-label" data-i18n="labelDate">Purchase date</div><div class="order-info-value" id="res-date">—</div></div>
       </div>
 
       <div class="warning-box">
         <span style="flex-shrink:0;font-size:18px">⚠️</span>
-        <span>Nếu chưa đổi mật khẩu, hãy <strong>đổi ngay</strong> để bảo mật tài khoản.</span>
+        <span data-i18n="warning">If you haven't changed your password yet, please do so <strong>immediately</strong> to secure your account.</span>
       </div>
 
       <div class="btn-row">
-        <button class="btn-secondary" onclick="resetLookup()">🔄 Tra cứu đơn khác</button>
-        <a href="/" class="btn-secondary">🏠 Trang chủ</a>
+        <button class="btn-secondary" onclick="resetLookup()">🔄 <span data-i18n="searchAnother">Search another order</span></button>
+        <a href="/" class="btn-secondary">🏠 <span data-i18n="home">Home</span></a>
       </div>
     </div>
 
-  </div><!-- /card -->
-
-  <div class="nav-link">
-    Cần hỗ trợ? <a href="https://t.me/your_telegram" target="_blank">Liên hệ Telegram</a>
   </div>
 
-  <div class="footer">
-    <p>© 2025 CapCut Delivery System · Powered by Plati.market</p>
-  </div>
-
+  <div class="nav-link"><span data-i18n="needHelp">Need help?</span> <a href="https://t.me/your_telegram" target="_blank">Telegram</a></div>
+  <div class="footer"><p>© 2025 CapCut Delivery System · Powered by Plati.market</p></div>
 </div>
 
 <script>
-function copyText(elId, btn) {
-  const text = document.getElementById(elId).textContent.trim();
-  navigator.clipboard.writeText(text).then(() => {
+const STRINGS = {
+  en:{
+    subtitle:'Order Lookup', title:'🔍 Look Up Your Order',
+    desc:'Enter your <strong>Unique Code</strong> and the <strong>email you used on Plati.market</strong> to view your CapCut Pro account details.',
+    uniqueCode:'Unique Code', emailPurchase:'Email used for purchase', searchBtn:'Search Order',
+    newPurchase:'New purchase?', getAccount:'Get your account →',
+    found:'✓ Order found', emailLabel:'📧 Email Address', passwordLabel:'🔑 Password',
+    copy:'Copy', copied:'Copied!', labelCode:'Unique Code', labelDate:'Purchase date',
+    warning:"If you haven't changed your password yet, please do so <strong>immediately</strong> to secure your account.",
+    searchAnother:'Search another order', home:'Home', needHelp:'Need help?',
+    errFill:'Please enter both Unique Code and email.',
+    errConnect:'Cannot connect to server. Please try again.',
+  },
+  ru:{
+    subtitle:'Поиск заказа', title:'🔍 Найти свой заказ',
+    desc:'Введите свой <strong>уникальный код</strong> и <strong>email с Plati.market</strong> для просмотра данных аккаунта CapCut Pro.',
+    uniqueCode:'Уникальный код', emailPurchase:'Email при покупке', searchBtn:'Найти заказ',
+    newPurchase:'Новая покупка?', getAccount:'Получить аккаунт →',
+    found:'✓ Заказ найден', emailLabel:'📧 Адрес Email', passwordLabel:'🔑 Пароль',
+    copy:'Копировать', copied:'Скопировано!', labelCode:'Уникальный код', labelDate:'Дата покупки',
+    warning:'Если вы ещё не сменили пароль, сделайте это <strong>немедленно</strong> для безопасности аккаунта.',
+    searchAnother:'Найти другой заказ', home:'Главная', needHelp:'Нужна помощь?',
+    errFill:'Пожалуйста, введите уникальный код и email.',
+    errConnect:'Не удалось подключиться к серверу. Попробуйте снова.',
+  }
+};
+
+const PLAN_META = {
+  '7d':{ cls:'plan-7d', icon:'⚡', en:'7 Days',   ru:'7 дней'   },
+  '1m':{ cls:'plan-1m', icon:'✨', en:'1 Month',  ru:'1 месяц'  },
+  '6m':{ cls:'plan-6m', icon:'👑', en:'6 Months', ru:'6 месяцев'},
+};
+
+let lang='en';
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(STRINGS[l][k]!==undefined)el.innerHTML=STRINGS[l][k];});
+  document.getElementById('btn-en').classList.toggle('active',l==='en');
+  document.getElementById('btn-ru').classList.toggle('active',l==='ru');
+}
+
+function copyText(elId,btn){
+  navigator.clipboard.writeText(document.getElementById(elId).textContent.trim()).then(()=>{
     btn.classList.add('copied');
-    btn.innerHTML = '<span>✓</span> Đã chép!';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.innerHTML = '<span>📋</span> Sao chép';
-    }, 2000);
+    btn.innerHTML='✓ '+STRINGS[lang].copied;
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML='📋 <span data-i18n="copy">'+STRINGS[lang].copy+'</span>';},2000);
   });
 }
 
-function formatDate(iso) {
-  try {
-    return new Date(iso).toLocaleString('vi-VN', {
-      year:'numeric', month:'2-digit', day:'2-digit',
-      hour:'2-digit', minute:'2-digit'
-    });
-  } catch { return iso; }
-}
+function formatDate(iso){try{return new Date(iso).toLocaleString(lang==='ru'?'ru-RU':'en-GB',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
 
-function showError(msg) {
-  document.getElementById('lookup-error-msg').textContent = msg;
-  document.getElementById('lookup-error').style.display = 'block';
-}
-function hideError() {
-  document.getElementById('lookup-error').style.display = 'none';
-}
+function showError(msg){ document.getElementById('lookup-error-msg').textContent=msg; document.getElementById('lookup-error').style.display='block'; }
+function hideError(){ document.getElementById('lookup-error').style.display='none'; }
 
-const PLAN_META = {
-  '7d': { cls: 'plan-7d', icon: '⚡', label: '7 Ngày'  },
-  '1m': { cls: 'plan-1m', icon: '✨', label: '1 Tháng' },
-  '6m': { cls: 'plan-6m', icon: '👑', label: '6 Tháng' },
-};
-
-async function submitLookup() {
-  const code  = document.getElementById('input-code').value.trim();
-  const email = document.getElementById('input-email').value.trim();
-
+async function submitLookup(){
+  const code=document.getElementById('input-code').value.trim();
+  const email=document.getElementById('input-email').value.trim();
   hideError();
+  if(!code||!email){showError(STRINGS[lang].errFill);return;}
 
-  if (!code)  { showError('Vui lòng nhập unique code.'); return; }
-  if (!email) { showError('Vui lòng nhập địa chỉ email.'); return; }
-
-  const btn = document.getElementById('lookup-btn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Đang tra cứu...';
+  const btn=document.getElementById('lookup-btn');
+  btn.disabled=true;
+  btn.innerHTML='⏳ ...';
 
   try {
-    const resp = await fetch(
-      `/api/lookup?uniquecode=${encodeURIComponent(code)}&email=${encodeURIComponent(email)}`
-    );
-    const data = await resp.json();
+    const resp=await fetch(`/api/lookup?uniquecode=${encodeURIComponent(code)}&email=${encodeURIComponent(email)}`);
+    const data=await resp.json();
 
-    if (data.success) {
+    if(data.success){
       document.getElementById('res-email').textContent    = data.account.email;
       document.getElementById('res-password').textContent = data.account.password;
-      document.getElementById('res-product').textContent  = data.order.productName || 'CapCut Pro Account';
-      document.getElementById('res-code').textContent     = (data.order.uniqueCode || '').slice(0,16) + '...';
+      document.getElementById('res-product').textContent  = data.order.productName||'CapCut Pro Account';
+      document.getElementById('res-code').textContent     = (data.order.uniqueCode||'').slice(0,14)+'...';
       document.getElementById('res-date').textContent     = formatDate(data.order.soldAt);
-
-      // Plan badge
-      const meta  = PLAN_META[data.order.productType] || { cls:'plan-1m', icon:'🎬', label:'' };
-      const badge = document.getElementById('res-plan-badge');
-      badge.className   = `plan-badge ${meta.cls}`;
-      badge.textContent = `${meta.icon} CapCut Pro ${meta.label}`;
-
-      document.getElementById('lookup-form').style.display = 'none';
-      document.getElementById('lookup-result').style.display = 'block';
+      const meta=PLAN_META[data.order.productType]||PLAN_META['1m'];
+      const badge=document.getElementById('res-plan-badge');
+      badge.className='plan-badge '+meta.cls;
+      badge.textContent=meta.icon+' CapCut Pro '+(lang==='ru'?meta.ru:meta.en);
+      document.getElementById('lookup-form').style.display='none';
+      document.getElementById('lookup-result').style.display='block';
     } else {
-      showError(data.error || 'Không tìm thấy đơn hàng.');
+      showError(data.error||'Error');
     }
-  } catch {
-    showError('Không thể kết nối server. Vui lòng thử lại.');
-  }
+  } catch { showError(STRINGS[lang].errConnect); }
 
-  btn.disabled = false;
-  btn.textContent = '🔍 Tra cứu ngay';
+  btn.disabled=false;
+  btn.innerHTML='🔍 <span data-i18n="searchBtn">'+STRINGS[lang].searchBtn+'</span>';
 }
 
-function resetLookup() {
-  document.getElementById('lookup-form').style.display   = 'block';
-  document.getElementById('lookup-result').style.display = 'none';
-  document.getElementById('input-code').value  = '';
-  document.getElementById('input-email').value = '';
+function resetLookup(){
+  document.getElementById('lookup-form').style.display='block';
+  document.getElementById('lookup-result').style.display='none';
+  document.getElementById('input-code').value='';
+  document.getElementById('input-email').value='';
   hideError();
 }
 </script>
