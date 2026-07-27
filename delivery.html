@@ -108,35 +108,33 @@ body::before{content:'';position:fixed;inset:0;background:
 /* Warning */
 .warn-box{background:rgba(255,183,77,.06);border:1px solid rgba(255,183,77,.22);border-radius:14px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:rgba(255,183,77,.8);line-height:1.55;font-weight:500}
 
-/* Contact seller box */
-.contact-box{background:rgba(123,94,248,.07);border:1px solid rgba(123,94,248,.22);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px}
-.contact-box-text{flex:1}
-.contact-box-title{font-size:13px;font-weight:700;color:#A78BFA;margin-bottom:3px}
-.contact-box-desc{font-size:12px;color:var(--muted);line-height:1.5;font-weight:500}
+/* ── Redesigned Rules Box ── */
+.rules-box{background:rgba(255,183,77,.04);border:1px solid rgba(255,183,77,.16);border-radius:16px;padding:18px 20px;overflow:hidden}
+.rules-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.rules-header-icon{font-size:16px}
+.rules-header-title{font-size:13px;font-weight:800;color:var(--amber);letter-spacing:.02em}
+.rules-items{display:flex;flex-direction:column;gap:8px}
+.rule-card{display:flex;gap:12px;align-items:flex-start;background:rgba(0,0,0,.25);border:1px solid rgba(255,183,77,.1);border-radius:10px;padding:10px 13px}
+.rule-num{flex-shrink:0;width:22px;height:22px;border-radius:6px;background:rgba(255,183,77,.18);color:var(--amber);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;letter-spacing:0}
+.rule-text{font-size:12px;color:var(--text2);line-height:1.6;font-weight:500}
+.rule-text b{color:#FFD54F;font-weight:700}
+.rule-card.rule-warn{border-color:rgba(255,92,138,.18);background:rgba(255,92,138,.05)}
+.rule-card.rule-warn .rule-num{background:rgba(255,92,138,.18);color:var(--red)}
+
+/* ── Combined Support Box ── */
+.support-box{background:rgba(123,94,248,.07);border:1px solid rgba(123,94,248,.2);border-radius:16px;overflow:hidden}
+.support-top{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.support-top-text{flex:1}
+.support-top-title{font-size:13px;font-weight:700;color:#A78BFA;margin-bottom:3px}
+.support-top-desc{font-size:12px;color:var(--muted);line-height:1.5;font-weight:500}
 .contact-btn{flex-shrink:0;background:linear-gradient(135deg,#7B5EF8,#E040FB);border:none;border-radius:10px;color:#fff;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;box-shadow:0 3px 12px rgba(123,94,248,.35)}
-.contact-btn:hover{box-shadow:0 5px 18px rgba(123,94,248,.55);transform:translateY(-1px)}
+.contact-btn:hover{box-shadow:0 5px 20px rgba(123,94,248,.55);transform:translateY(-1px)}
+.support-divider{height:1px;background:rgba(123,94,248,.18);margin:0 18px}
+.support-review{padding:12px 18px;display:flex;align-items:flex-start;gap:10px;font-size:12px;color:rgba(197,197,232,.65);line-height:1.6;font-weight:500}
+.support-review b{color:#C4B5FD;font-weight:700}
+.support-review-star{font-size:15px;flex-shrink:0}
 
-/* Review reminder box */
-.review-remind-box{background:linear-gradient(135deg,rgba(255,183,77,.08),rgba(224,64,251,.06));border:1px solid rgba(255,183,77,.2);border-radius:14px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
-.review-remind-box .rr-icon{font-size:22px;flex-shrink:0;line-height:1}
-.review-remind-box .rr-text{font-size:12.5px;color:rgba(255,183,77,.9);line-height:1.6;font-weight:500}
-.review-remind-box .rr-text b{color:#FFD54F;font-weight:700}
-
-/* Rules box — card layout */
-.rules-box{background:rgba(255,183,77,.04);border:1px solid rgba(255,183,77,.15);border-radius:14px;padding:18px}
-.rules-title{font-size:13px;font-weight:800;color:var(--amber);margin-bottom:14px;display:flex;align-items:center;gap:6px}
-.rule-cards{display:flex;flex-direction:column;gap:10px}
-.rule-card{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:11px;border-left:3px solid transparent}
-.rule-card.rule-blue {background:rgba(79,195,247,.07); border-left-color:#4FC3F7}
-.rule-card.rule-amber{background:rgba(255,183,77,.07);  border-left-color:#FFB74D}
-.rule-card.rule-red  {background:rgba(255,92,138,.07);  border-left-color:#FF5C8A}
-.rule-card-icon{font-size:18px;flex-shrink:0;line-height:1.2}
-.rule-card-body{flex:1;min-width:0}
-.rule-card-title{font-size:12px;font-weight:800;margin-bottom:3px;letter-spacing:.01em}
-.rule-card.rule-blue  .rule-card-title{color:#4FC3F7}
-.rule-card.rule-amber .rule-card-title{color:#FFB74D}
-.rule-card.rule-red   .rule-card-title{color:#FF7B9C}
-.rule-card-text{font-size:12px;color:var(--muted);line-height:1.55;font-weight:500}
+/* Bottom bar */
 .bottom-bar{margin-top:22px;display:flex;justify-content:center}
 .check-another{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:14px;color:var(--muted);padding:13px 32px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
 .check-another:hover{border-color:var(--violet);color:var(--text2)}
@@ -264,37 +262,29 @@ body::before{content:'';position:fixed;inset:0;background:
           </div>
         </div>
 
+        <!-- Important Rules — redesigned -->
         <div class="rules-box">
-          <div class="rules-title">📌 <span data-i18n="rulesTitle">Important Rules</span></div>
-          <div class="rule-cards">
-
-            <!-- Rule 1: VPN fix -->
-            <div class="rule-card rule-blue">
-              <div class="rule-card-icon">🔄</div>
-              <div class="rule-card-body">
-                <div class="rule-card-title" data-i18n="ruleATitle">Pro effects missing?</div>
-                <div class="rule-card-text" data-i18n="ruleAText">Log out → Enable a fresh VPN → Clear app cache → Log back in</div>
-              </div>
+          <div class="rules-header">
+            <span class="rules-header-icon">📌</span>
+            <span class="rules-header-title" data-i18n="rulesTitle">Important Rules</span>
+          </div>
+          <div class="rules-items">
+            <div class="rule-card">
+              <div class="rule-num">1</div>
+              <div class="rule-text" data-i18n="rule1">If Pro effects are missing: log out → enable fresh VPN → clear app cache → log back in</div>
             </div>
-
-            <!-- Rule 2: Device limit -->
-            <div class="rule-card rule-amber">
-              <div class="rule-card-icon">📱</div>
-              <div class="rule-card-body">
-                <div class="rule-card-title" data-i18n="ruleBTitle">2 Devices Maximum</div>
-                <div class="rule-card-text" data-i18n="ruleBText">CapCut allows only 2 devices — PC and Mobile are counted separately.</div>
-              </div>
+            <div class="rule-card">
+              <div class="rule-num">2</div>
+              <div class="rule-text" data-i18n="rule2">CapCut limits to <b>2 devices only</b> (PC + Mobile counted separately)</div>
             </div>
-
-            <!-- Rule 3: Warranty -->
-            <div class="rule-card rule-red">
-              <div class="rule-card-icon">🚫</div>
-              <div class="rule-card-body">
-                <div class="rule-card-title" data-i18n="ruleCTitle">No Warranty If Used on 3+ Devices</div>
-                <div class="rule-card-text" data-i18n="ruleCText">"Password incorrect" / "Too many login attempts" / "Maximum attempts reached" — all mean 3+ devices. Not covered.</div>
-              </div>
+            <div class="rule-card rule-warn">
+              <div class="rule-num">3</div>
+              <div class="rule-text" data-i18n="rule3">If you see <b>"password incorrect"</b> or <b>"too many login attempts"</b> — account used on 3+ devices. <b>NOT covered by warranty.</b></div>
             </div>
-
+            <div class="rule-card rule-warn">
+              <div class="rule-num">4</div>
+              <div class="rule-text" data-i18n="rule4"><b>"Maximum number of attempts reached"</b> = 3+ devices = No warranty</div>
+            </div>
           </div>
         </div>
 
@@ -303,19 +293,20 @@ body::before{content:'';position:fixed;inset:0;background:
           <span data-i18n="warning">Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.</span>
         </div>
 
-        <!-- Contact Seller -->
-        <div class="contact-box">
-          <div class="contact-box-text">
-            <div class="contact-box-title">💬 <span data-i18n="contactTitle">Need help? Contact Seller</span></div>
-            <div class="contact-box-desc" data-i18n="contactDesc">Having issues with your account? Message us directly on Plati.market — we respond fast.</div>
+        <!-- Contact + Review — merged -->
+        <div class="support-box">
+          <div class="support-top">
+            <div class="support-top-text">
+              <div class="support-top-title">💬 <span data-i18n="contactTitle">Need help? Contact Seller</span></div>
+              <div class="support-top-desc" data-i18n="contactDesc">Issues with your account? Message us on Plati.market — we respond fast.</div>
+            </div>
+            <a id="contact-link" href="#" target="_blank" class="contact-btn">✉️ <span data-i18n="contactBtn">Contact</span></a>
           </div>
-          <a id="contact-link" href="https://plati.market/itm/5059273" target="_blank" class="contact-btn">✉️ <span data-i18n="contactBtn">Contact</span></a>
-        </div>
-
-        <!-- Review reminder -->
-        <div class="review-remind-box">
-          <div class="rr-icon">✨</div>
-          <div class="rr-text" data-i18n="reviewRemind">And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨</div>
+          <div class="support-divider"></div>
+          <div class="support-review">
+            <span class="support-review-star">✨</span>
+            <span data-i18n="reviewRemind">Don't forget to leave a <b>positive review</b> — it really means a lot and helps us improve! ✨</span>
+          </div>
         </div>
 
       </div>
@@ -350,12 +341,10 @@ const S={
     p4:'Step 4: Scan with your phone → Done ✓',
     p5:'⚠️ Log out from mobile after scanning (2-device limit)',
     rulesTitle:'Important Rules',
-    ruleATitle:'Pro effects missing?',
-    ruleAText:'Log out → Enable a fresh VPN → Clear app cache → Log back in',
-    ruleBTitle:'2 Devices Maximum',
-    ruleBText:'CapCut allows only 2 devices — PC and Mobile are counted separately.',
-    ruleCTitle:'No Warranty If Used on 3+ Devices',
-    ruleCText:'"Password incorrect" / "Too many login attempts" / "Maximum attempts reached" — all mean 3+ devices. Not covered.',
+    rule1:'If Pro effects are missing: log out → enable fresh VPN → clear app cache → log back in',
+    rule2:'CapCut limits to 2 devices only (PC + Mobile counted separately)',
+    rule3:'If logged out and see "password incorrect" or "too many login attempts" — used on 3+ devices. NOT covered by warranty.',
+    rule4:'"Maximum number of attempts reached" = 3+ devices = No warranty',
     warning:'Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.',
     contactTitle:'Need help? Contact Seller',
     contactDesc:'Having issues with your account? Message us directly on Plati.market — we respond fast.',
@@ -386,14 +375,11 @@ const S={
     p4:'Шаг 4: Отсканируйте телефоном → Готово ✓',
     p5:'⚠️ Выйдите из аккаунта на мобильном после сканирования (лимит 2 устройства)',
     rulesTitle:'Важные правила',
-    ruleATitle:'Про-эффекты недоступны?',
-    ruleAText:'Выйдите → Включите новый VPN → Очистите кэш приложения → Войдите снова',
-    ruleBTitle:'Максимум 2 устройства',
-    ruleBText:'CapCut допускает только 2 устройства — ПК и мобильный считаются отдельно.',
-    ruleCTitle:'Гарантия не действует при 3+ устройствах',
-    ruleCText:'«Неверный пароль» / «Слишком много попыток» / «Достигнут максимум» — всё это означает 3+ устройства. Гарантия не распространяется.',
+    rule1:'Если Pro-эффекты недоступны: выйдите → включите новый VPN → очистите кэш → войдите снова',
+    rule2:'CapCut ограничил аккаунты до 2 устройств (ПК + Мобильный считаются отдельно)',
+    rule3:'Если вас выбрасывает и появляется «неверный пароль» или «слишком много попыток» — аккаунт используется на 3+ устройствах. Гарантия НЕ распространяется.',
+    rule4:'«Достигнут максимум попыток» = 3+ устройства = Гарантия не распространяется',
     warning:'Сохраните эту страницу или скриншот. Аккаунт можно получить в любое время по уникальному коду и email.',
-
     contactTitle:'💬 Нужна помощь? Напишите продавцу',
     contactDesc:'Проблемы с аккаунтом? Напишите нам напрямую на Plati.market — отвечаем быстро.',
     contactBtn:'Написать',
@@ -483,6 +469,11 @@ async function load(){
     badge.dataset.type=pt;
     badge.textContent=meta.en;
     document.getElementById('verified-label').textContent=S[lang][data.alreadyDelivered?'alreadyDelivered':'verified'];
+    // Set dynamic contact link using orderId
+    const orderId = data.order.orderId || '';
+    if(orderId){
+      document.getElementById('contact-link').href=`https://digiseller.me/info/buy.asp?id_i=${orderId}&lang=en-US`;
+    }
     show('state-result');
     if(!data.alreadyDelivered)launchConfetti();
   }catch(e){
