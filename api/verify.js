@@ -1,7 +1,7 @@
 const { verifyUniqueCode } = require('../lib/plati');
 const {
   getNextAvailableAccount,
-  markAccountAsSold,
+  deleteAccountRow,
   saveOrder,
   findOrderByCode,
 } = require('../lib/sheets');
@@ -74,8 +74,8 @@ module.exports = async (req, res) => {
       });
     }
 
-    /* ── 4. Đánh dấu sold + lưu đơn ────────────────────────────────── */
-    await markAccountAsSold(sheetName, account.rowIndex, code);
+    /* ── 4. Delete from product sheet + save order ──────────────────── */
+    await deleteAccountRow(sheetName, account.rowIndex);
     await saveOrder({
       uniqueCode:      code,
       buyerEmail:      platiInfo.buyer,
