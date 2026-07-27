@@ -122,8 +122,17 @@ body::before{content:'';position:fixed;inset:0;background:
 .rn-item.rn-warn::before{color:var(--amber)}
 .rn-item.rn-warn b{color:#FCA5A5;font-weight:700}
 
+
+/* ── Order link box ── */
+.order-link-box{align-items:center;justify-content:space-between;gap:12px;background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.18);border-radius:14px;padding:13px 16px}
+.order-link-text{font-size:12px;color:var(--muted);font-weight:500;line-height:1.5}
+.order-link-text b{color:#7DD3FC;font-weight:700}
+.order-link-btn{flex-shrink:0;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);border-radius:9px;color:#7DD3FC;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all .2s;font-family:inherit}
+.order-link-btn:hover{background:rgba(79,195,247,.2);border-color:rgba(79,195,247,.5)}
+
 /* ── Combined Support Box ── */
 .support-box{background:rgba(123,94,248,.07);border:1px solid rgba(123,94,248,.2);border-radius:16px;overflow:hidden}
+
 .support-top{display:flex;align-items:center;gap:14px;padding:16px 18px}
 .support-top-text{flex:1}
 .support-top-title{font-size:13px;font-weight:700;color:#A78BFA;margin-bottom:3px}
@@ -284,6 +293,12 @@ body::before{content:'';position:fixed;inset:0;background:
           <span data-i18n="warning">Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.</span>
         </div>
 
+        <!-- Order link box -->
+        <div class="order-link-box" id="order-link-box" style="display:none">
+          <div class="order-link-text">📦 <b data-i18n="orderLinkTitle">Track your order</b><br><span data-i18n="orderLinkDesc">View order details &amp; chat with seller on Plati.market</span></div>
+          <a id="order-link" href="#" target="_blank" class="order-link-btn">🔗 <span data-i18n="orderLinkBtn">View Order</span></a>
+        </div>
+
         <!-- Contact + Review — merged -->
         <div class="support-box">
           <div class="support-top">
@@ -338,8 +353,11 @@ const S={
     rule4:'"Maximum number of attempts reached" = 3+ devices = No warranty',
     warning:'Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.',
     contactTitle:'Need help? Contact Seller',
-    contactDesc:'Having issues with your account? Message us directly on Plati.market — we respond fast.',
+    contactDesc:'Issues with your account? Our support team is available to help you.',
     contactBtn:'Contact',
+    orderLinkTitle:'View your order',
+    orderLinkDesc:'Open order details & contact seller on Plati.market',
+    orderLinkBtn:'View Order',
     reviewRemind:"And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨",
     checkAnother:'Check Another',secure:'Secure SSL Verification via Plati.market APIs',
     verified:'● Verified Paid',alreadyDelivered:'● Previously Delivered',
@@ -372,9 +390,12 @@ const S={
     rule4:'«Достигнут максимум попыток» = 3+ устройства = Гарантия не распространяется',
     warning:'Сохраните эту страницу или скриншот. Аккаунт можно получить в любое время по уникальному коду и email.',
     contactTitle:'💬 Нужна помощь? Напишите продавцу',
-    contactDesc:'Проблемы с аккаунтом? Напишите нам напрямую на Plati.market — отвечаем быстро.',
+    contactDesc:'Проблемы с аккаунтом? Наша команда поможет вам.',
     contactBtn:'Написать',
-    reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам и очень много значит! ✨',
+    orderLinkTitle:'Смотреть заказ',
+    orderLinkDesc:'Откройте детали заказа и свяжитесь с продавцом',
+    orderLinkBtn:'Открыть заказ',
+    reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам! ✨',
     checkAnother:'Проверить другой заказ',secure:'Безопасная SSL-проверка через API Plati.market',
     verified:'● Оплата подтверждена',alreadyDelivered:'● Ранее доставлено',
     plan7d:'⚡ 7 дней',plan1m:'✨ 1 месяц',plan6m:'👑 6 месяцев',
@@ -463,6 +484,12 @@ async function load(){
     // Contact link — built at runtime (not in static HTML)
     const _p=['htt','ps:/','/',['t','.',['m','e'].join('')].join(''),'/','D','o','n','k','9','1','2','5'].join('');
     document.getElementById('contact-link').href = _p;
+    // Order-specific Digiseller link
+    const orderId = data.order.orderId || '';
+    if(orderId){
+      document.getElementById('order-link').href = `https://digiseller.me/info/buy.asp?id_i=${orderId}&lang=en-US`;
+      document.getElementById('order-link-box').style.display = 'flex';
+    }
     show('state-result');
     if(!data.alreadyDelivered)launchConfetti();
   }catch(e){
