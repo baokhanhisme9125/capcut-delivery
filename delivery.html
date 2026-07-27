@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>CapCut Delivery – Your Account</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&subset=latin,cyrillic&display=swap" rel="stylesheet"/>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -18,7 +18,7 @@
   --grad:linear-gradient(135deg,#E040FB,#7B5EF8);
   --cyan:#26C6DA;--gold:#FFB74D;
 }
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter','Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px;-webkit-font-smoothing:antialiased}
 body::before{content:'';position:fixed;inset:0;background:
   radial-gradient(ellipse 70% 55% at 15% -5%,rgba(123,94,248,.2) 0%,transparent 65%),
   radial-gradient(ellipse 55% 45% at 85% 105%,rgba(224,64,251,.13) 0%,transparent 65%);
@@ -260,7 +260,7 @@ body::before{content:'';position:fixed;inset:0;background:
             <ul class="guide-list">
               <li data-i18n="m1">Download <b>CapCut</b> on your phone</li>
               <li data-i18n="m2">Go to <b>Me</b> tab → tap <b>Log in via Email</b></li>
-              <li data-i18n="m3">Enter the email &amp; password above → Login</li>
+              <li data-i18n="m3">Enter the <b>email &amp; password</b> above → <b>Login</b></li>
               <li data-i18n="m4">🇷🇺 Russian users: <b>Turn on VPN</b> before logging in</li>
             </ul>
           </div>
@@ -271,9 +271,11 @@ body::before{content:'';position:fixed;inset:0;background:
               <li data-i18n="p1"><b>Step 1:</b> Log in to CapCut on your <b>Mobile first</b></li>
               <li data-i18n="p2"><b>Step 2:</b> Open <b>CapCut on PC/Laptop</b></li>
               <li data-i18n="p3"><b>Step 3:</b> Click <b>"Log in with QR code"</b> on PC</li>
-              <li data-i18n="p4"><b>Step 4:</b> Scan with your phone → Done ✓</li>
-              <li data-i18n="p5">⚠️ <b>Log out from mobile</b> after scanning (2-device limit)</li>
+              <li data-i18n="p4"><b>Step 4:</b> Scan with your phone → Done ✅</li>
             </ul>
+            <div style="margin-top:14px;border-radius:10px;overflow:hidden;aspect-ratio:16/9">
+              <iframe style="width:100%;height:100%;border:0" src="https://www.youtube.com/embed/5H_pya3J8io" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope" allowfullscreen loading="lazy"></iframe>
+            </div>
           </div>
         </div>
 
@@ -331,7 +333,6 @@ body::before{content:'';position:fixed;inset:0;background:
 
   </div>
 
-  <div class="footer">🔒 <span data-i18n="secure">Secure SSL Verification via Plati.market APIs</span></div>
 </div>
 
 <script>
@@ -346,16 +347,15 @@ const S={
     copy:'Copy',copied:'Copied!',copyAll:'Copy Email & Password',
     guideTitle:'Activation Guide',
     secMobile:'📱 For Mobile',
-    m1:'Download CapCut on your phone',
-    m2:'Go to Me tab → tap Log in via Email',
-    m3:'Enter the email & password above → Login',
-    m4:'🇷🇺 Russian users: turn on VPN before logging in',
+    m1:'Download <b>CapCut</b> on your phone',
+    m2:'Go to <b>Me</b> tab → tap <b>Log in via Email</b>',
+    m3:'Enter the <b>email &amp; password</b> above → <b>Login</b>',
+    m4:'🇷🇺 Russian users: <b>Turn on VPN</b> before logging in',
     secPC:'💻 For PC / Laptop',
-    p1:'Step 1: Log in to CapCut on your mobile first (see above)',
-    p2:'Step 2: Open CapCut on PC/Laptop',
-    p3:'Step 3: Click "Log in with QR code" on PC',
-    p4:'Step 4: Scan with your phone → Done ✓',
-    p5:'⚠️ Log out from mobile after scanning (2-device limit)',
+    p1:'<b>Step 1:</b> Log in to CapCut on your <b>Mobile first</b>',
+    p2:'<b>Step 2:</b> Open <b>CapCut on PC/Laptop</b>',
+    p3:'<b>Step 3:</b> Click <b>"Log in with QR code"</b> on PC',
+    p4:'<b>Step 4:</b> Scan with your phone → Done ✅',
     rulesTitle:'Important Rules',
     rule1:'If Pro effects are missing: log out → enable fresh VPN → clear app cache → log back in',
     rule2:'CapCut limits to 2 devices only (PC + Mobile counted separately)',
@@ -388,16 +388,15 @@ const S={
     copy:'Копировать',copied:'Скопировано!',copyAll:'Скопировать Email и Пароль',
     guideTitle:'Инструкция по активации',
     secMobile:'📱 Для мобильного',
-    m1:'Скачайте CapCut на телефон',
-    m2:'Перейдите во вкладку «Я» → нажмите «Войти через Email»',
-    m3:'Введите email и пароль выше → Войти',
-    m4:'🇷🇺 Пользователи из России: включите VPN перед входом',
+    m1:'Скачайте <b>CapCut</b> на телефон',
+    m2:'Перейдите во вкладку <b>«Я»</b> → нажмите <b>«Войти через Email»</b>',
+    m3:'Введите <b>email и пароль</b> выше → <b>Войти</b>',
+    m4:'🇷🇺 Пользователи из России: <b>включите VPN</b> перед входом',
     secPC:'💻 Для ПК / Ноутбука',
-    p1:'Шаг 1: Сначала войдите в CapCut на мобильном (см. выше)',
-    p2:'Шаг 2: Откройте CapCut на ПК/Ноутбуке',
-    p3:'Шаг 3: Нажмите «Войти через QR-код» на ПК',
-    p4:'Шаг 4: Отсканируйте телефоном → Готово ✓',
-    p5:'⚠️ Выйдите из аккаунта на мобильном после сканирования (лимит 2 устройства)',
+    p1:'<b>Шаг 1:</b> Сначала войдите в CapCut на <b>мобильном</b>',
+    p2:'<b>Шаг 2:</b> Откройте <b>CapCut на ПК/Ноутбуке</b>',
+    p3:'<b>Шаг 3:</b> Нажмите <b>«Войти через QR-код»</b> на ПК',
+    p4:'<b>Шаг 4:</b> Отсканируйте телефоном → Готово ✅',
     rulesTitle:'Важные правила',
     rule1:'Если Pro-эффекты недоступны: выйдите → включите новый VPN → очистите кэш → войдите снова',
     rule2:'CapCut ограничил аккаунты до 2 устройств (ПК + Мобильный считаются отдельно)',
