@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nhận Tài Khoản CapCut Pro – Giao Hàng Tự Động</title>
+  <meta name="description" content="Nhận ngay tài khoản CapCut Pro của bạn sau khi thanh toán. Hệ thống giao hàng tự động 24/7." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .manual-form { display: none; }
+    #state-loading, #state-success, #state-error, #state-manual { display: none; }
+  .plan-badge { display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:13px;font-weight:700;margin-bottom:16px; }
+  .plan-7d  { background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.35);color:#22d3ee; }
+  .plan-1m  { background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.35);color:#a78bfa; }
+  .plan-6m  { background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);color:#fbbf24; }
+  </style>
+</head>
+<body>
+
+<!-- Animated background orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<div class="page-wrapper">
+
+  <!-- Logo -->
+  <div class="logo-wrap">
+    <div class="logo-icon">🎬</div>
+    <div class="logo-title">CapCut Delivery</div>
+    <div class="logo-sub">Hệ thống giao hàng tự động • 24/7</div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card" id="main-card">
+
+    <!-- ══ STATE: LOADING ══ -->
+    <div id="state-loading">
+      <div class="state-loading">
+        <div class="spinner-ring"></div>
+        <div style="text-align:center">
+          <div style="font-size:18px;font-weight:700;margin-bottom:6px">Đang xử lý đơn hàng...</div>
+          <div style="font-size:13px;color:var(--muted)">Vui lòng chờ trong giây lát</div>
+        </div>
+        <div class="loading-steps">
+          <div class="loading-step" id="step-1">
+            <div class="step-dot"></div>
+            <span>Xác thực unique code</span>
+          </div>
+          <div class="loading-step" id="step-2">
+            <div class="step-dot"></div>
+            <span>Kiểm tra đơn hàng Plati</span>
+          </div>
+          <div class="loading-step" id="step-3">
+            <div class="step-dot"></div>
+            <span>Phân bổ tài khoản</span>
+          </div>
+          <div class="loading-step" id="step-4">
+            <div class="step-dot"></div>
+            <span>Hoàn tất giao hàng</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STATE: SUCCESS ══ -->
+    <div id="state-success" class="state-success">
+      <div class="success-badge" id="success-badge">Giao hàng thành công</div>
+
+      <div style="margin-bottom:16px">
+        <span id="plan-badge" class="plan-badge plan-1m">⏱ CapCut Pro</span>
+      </div>
+
+      <div class="product-name">
+        <span>🎬</span>
+        <span id="product-name-text">CapCut Pro Account</span>
+      </div>
+
+      <!-- Email credential -->
+      <div class="credential-box">
+        <div class="credential-label">📧 Địa chỉ Email</div>
+        <div class="credential-row">
+          <div class="credential-value" id="acc-email">—</div>
+          <button class="copy-btn" onclick="copyText('acc-email', this)">
+            <span>📋</span> Sao chép
+          </button>
+        </div>
+      </div>
+
+      <!-- Password credential -->
+      <div class="credential-box">
+        <div class="credential-label">🔑 Mật khẩu</div>
+        <div class="credential-row">
+          <div class="credential-value" id="acc-password">—</div>
+          <button class="copy-btn" onclick="copyText('acc-password', this)">
+            <span>📋</span> Sao chép
+          </button>
+        </div>
+      </div>
+
+      <!-- Warning -->
+      <div class="warning-box">
+        <span style="flex-shrink:0;font-size:18px">⚠️</span>
+        <span>Vui lòng <strong>đổi mật khẩu ngay</strong> sau khi đăng nhập để bảo mật tài khoản. Lưu lại thông tin này, bạn có thể tra cứu lại bằng unique code và email.</span>
+      </div>
+
+      <!-- Order info -->
+      <div class="order-info" id="order-info-box">
+        <div class="order-info-item">
+          <div class="order-info-label">Unique Code</div>
+          <div class="order-info-value" id="info-code">—</div>
+        </div>
+        <div class="order-info-item">
+          <div class="order-info-label">Thời gian</div>
+          <div class="order-info-value" id="info-time">—</div>
+        </div>
+        <div class="order-info-item">
+          <div class="order-info-label">Sản phẩm</div>
+          <div class="order-info-value" id="info-product">CapCut Pro</div>
+        </div>
+        <div class="order-info-item">
+          <div class="order-info-label">Order ID</div>
+          <div class="order-info-value" id="info-orderid">—</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <a href="lookup.html" class="btn-secondary">🔍 Tra cứu lại đơn</a>
+      </div>
+    </div>
+
+    <!-- ══ STATE: ERROR ══ -->
+    <div id="state-error" class="state-error">
+      <div class="error-icon">❌</div>
+      <div class="error-title">Không thể xác thực</div>
+      <div class="error-msg" id="error-msg-text">
+        Unique code không hợp lệ hoặc đã hết hạn.
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px">
+        Nếu bạn đã thanh toán thành công, hãy nhập thủ công unique code bên dưới:
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unique Code từ Plati</label>
+        <input id="manual-code" class="form-input" type="text"
+               placeholder="Paste unique code vào đây..." autocomplete="off" />
+      </div>
+      <button class="btn-primary" onclick="submitManualCode()">
+        🔄 Thử lại với code này
+      </button>
+      <div class="btn-row" style="margin-top:12px">
+        <a href="lookup.html" class="btn-secondary">🔍 Tra cứu đơn đã mua</a>
+      </div>
+    </div>
+
+    <!-- ══ STATE: MANUAL (no code in URL) ══ -->
+    <div id="state-manual">
+      <div class="section-title">Nhận tài khoản của bạn</div>
+      <div class="section-desc">
+        Sau khi thanh toán trên Plati.market, bạn sẽ nhận được một <strong>Unique Code</strong>.
+        Nhập code đó vào bên dưới để nhận tài khoản CapCut Pro.
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="manual-code-input">Unique Code</label>
+        <input id="manual-code-input" class="form-input" type="text"
+               placeholder="Ví dụ: ABC123XYZ456..." autocomplete="off"
+               onkeydown="if(event.key==='Enter') submitManualCodeInput()" />
+      </div>
+
+      <button class="btn-primary" id="manual-submit-btn" onclick="submitManualCodeInput()">
+        ✅ Xác nhận & Nhận hàng
+      </button>
+
+      <div class="divider"></div>
+
+      <div style="text-align:center;font-size:13px;color:var(--muted)">
+        Đã mua trước đó?
+        <a href="lookup.html" style="color:var(--red2);text-decoration:none">Tra cứu đơn hàng →</a>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="nav-link">
+    Cần hỗ trợ? <a href="https://t.me/your_telegram" target="_blank">Liên hệ Telegram</a>
+  </div>
+
+  <div class="footer">
+    <p>© 2025 CapCut Delivery System · Powered by Plati.market</p>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DELIVERY PAGE LOGIC
+═══════════════════════════════════════════════════ */
+
+function show(id) {
+  ['state-loading','state-success','state-error','state-manual'].forEach(s => {
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'block';
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step-' + i);
+    el.classList.remove('active','done');
+    if (i < n)  el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  }
+}
+
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleString('vi-VN', {
+      year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit'
+    });
+  } catch { return iso; }
+}
+
+const PLAN_META = {
+  '7d': { cls: 'plan-7d', icon: '⚡', label: '7 Ngày'   },
+  '1m': { cls: 'plan-1m', icon: '✨', label: '1 Tháng'  },
+  '6m': { cls: 'plan-6m', icon: '👑', label: '6 Tháng'  },
+};
+
+function showSuccess(data) {
+  document.getElementById('acc-email').textContent     = data.account.email;
+  document.getElementById('acc-password').textContent  = data.account.password;
+  document.getElementById('info-code').textContent     = (data.order.uniqueCode || '').slice(0,16) + '...';
+  document.getElementById('info-time').textContent     = formatDate(data.order.soldAt);
+  document.getElementById('info-product').textContent  = data.order.productName || 'CapCut Pro';
+  document.getElementById('info-orderid').textContent  = data.order.orderId || '—';
+
+  // Update plan badge
+  const meta  = PLAN_META[data.order.productType] || { cls:'plan-1m', icon:'🎬', label:'' };
+  const badge = document.getElementById('plan-badge');
+  badge.className = `plan-badge ${meta.cls}`;
+  badge.textContent = `${meta.icon} CapCut Pro ${meta.label}`;
+  document.getElementById('product-name-text').textContent = data.order.productName || 'CapCut Pro Account';
+
+  if (data.alreadyDelivered) {
+    document.getElementById('success-badge').textContent = '📦 Đơn đã giao trước đó';
+  }
+  show('state-success');
+  if (!data.alreadyDelivered) launchConfetti();
+}
+
+function showError(msg) {
+  document.getElementById('error-msg-text').textContent = msg;
+  show('state-error');
+}
+
+async function verifyCode(code) {
+  show('state-loading');
+
+  // Animate steps
+  setStep(1);
+  await sleep(600);
+  setStep(2);
+  await sleep(700);
+  setStep(3);
+
+  try {
+    const resp = await fetch(`/api/verify?uniquecode=${encodeURIComponent(code)}`);
+    const data = await resp.json();
+
+    setStep(4);
+    await sleep(500);
+
+    if (data.success) {
+      showSuccess(data);
+    } else {
+      showError(data.error || 'Lỗi không xác định. Vui lòng thử lại.');
+    }
+  } catch (err) {
+    showError('Không thể kết nối server. Kiểm tra mạng và thử lại.');
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function submitManualCode() {
+  const code = document.getElementById('manual-code').value.trim();
+  if (!code) { document.getElementById('manual-code').focus(); return; }
+  await verifyCode(code);
+}
+
+async function submitManualCodeInput() {
+  const code = document.getElementById('manual-code-input').value.trim();
+  if (!code) { document.getElementById('manual-code-input').focus(); return; }
+  const btn = document.getElementById('manual-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang xác thực...';
+  await verifyCode(code);
+  btn.disabled = false;
+  btn.textContent = '✅ Xác nhận & Nhận hàng';
+}
+
+function copyText(elId, btn) {
+  const text = document.getElementById(elId).textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<span>✓</span> Đã chép!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<span>📋</span> Sao chép';
+    }, 2000);
+  });
+}
+
+/* ── Confetti ── */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#FF2D55','#7C3AED','#06B6D4','#10B981','#F59E0B','#fff'];
+  const pieces = Array.from({ length: 120 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    r: Math.random() * 6 + 3,
+    d: Math.random() * 2 + 1,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    tilt: Math.random() * 10 - 5,
+    tiltA: Math.random() * 0.2 - 0.1,
+    opacity: 1,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.globalAlpha = p.opacity;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, p.r, p.r * 0.5, p.tilt, 0, Math.PI * 2);
+      ctx.fill();
+
+      p.y += p.d + frame * 0.01;
+      p.tilt += p.tiltA;
+      p.x += Math.sin(frame * 0.05 + p.tilt) * 0.8;
+      if (p.y > canvas.height) p.opacity -= 0.02;
+    });
+    ctx.globalAlpha = 1;
+
+    if (pieces.some(p => p.opacity > 0) && frame < 300) {
+      frame++;
+      requestAnimationFrame(draw);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  draw();
+}
+
+/* ── Init ── */
+(function init() {
+  const params = new URLSearchParams(window.location.search);
+  const code   = params.get('uniquecode') || params.get('unique_code');
+
+  if (code && code.length >= 5) {
+    verifyCode(code);
+  } else {
+    show('state-manual');
+  }
+})();
+</script>
+</body>
+</html>
