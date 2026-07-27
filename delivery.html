@@ -108,6 +108,20 @@ body::before{content:'';position:fixed;inset:0;background:
 /* Warning */
 .warn-box{background:rgba(255,183,77,.06);border:1px solid rgba(255,183,77,.22);border-radius:14px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:rgba(255,183,77,.8);line-height:1.55;font-weight:500}
 
+/* Contact seller box */
+.contact-box{background:rgba(123,94,248,.07);border:1px solid rgba(123,94,248,.22);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.contact-box-text{flex:1}
+.contact-box-title{font-size:13px;font-weight:700;color:#A78BFA;margin-bottom:3px}
+.contact-box-desc{font-size:12px;color:var(--muted);line-height:1.5;font-weight:500}
+.contact-btn{flex-shrink:0;background:linear-gradient(135deg,#7B5EF8,#E040FB);border:none;border-radius:10px;color:#fff;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;box-shadow:0 3px 12px rgba(123,94,248,.35)}
+.contact-btn:hover{box-shadow:0 5px 18px rgba(123,94,248,.55);transform:translateY(-1px)}
+
+/* Review reminder box */
+.review-remind-box{background:linear-gradient(135deg,rgba(255,183,77,.08),rgba(224,64,251,.06));border:1px solid rgba(255,183,77,.2);border-radius:14px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+.review-remind-box .rr-icon{font-size:22px;flex-shrink:0;line-height:1}
+.review-remind-box .rr-text{font-size:12.5px;color:rgba(255,183,77,.9);line-height:1.6;font-weight:500}
+.review-remind-box .rr-text b{color:#FFD54F;font-weight:700}
+
 /* Bottom bar */
 .bottom-bar{margin-top:22px;display:flex;justify-content:center}
 .check-another{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:14px;color:var(--muted);padding:13px 32px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
@@ -251,6 +265,21 @@ body::before{content:'';position:fixed;inset:0;background:
           <span data-i18n="warning">Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.</span>
         </div>
 
+        <!-- Contact Seller -->
+        <div class="contact-box">
+          <div class="contact-box-text">
+            <div class="contact-box-title">💬 <span data-i18n="contactTitle">Need help? Contact Seller</span></div>
+            <div class="contact-box-desc" data-i18n="contactDesc">Having issues with your account? Message us directly on Plati.market — we respond fast.</div>
+          </div>
+          <a id="contact-link" href="https://plati.market/seller/1359550" target="_blank" class="contact-btn">✉️ <span data-i18n="contactBtn">Contact</span></a>
+        </div>
+
+        <!-- Review reminder -->
+        <div class="review-remind-box">
+          <div class="rr-icon">✨</div>
+          <div class="rr-text" data-i18n="reviewRemind">And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨</div>
+        </div>
+
       </div>
     </div>
 
@@ -288,7 +317,11 @@ const S={
     rule3:'If logged out and see "password incorrect" or "too many login attempts" — used on 3+ devices. NOT covered by warranty.',
     rule4:'"Maximum number of attempts reached" = 3+ devices = No warranty',
     warning:'Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.',
-    checkAnother:'Check Another Order',secure:'Secure SSL Verification via Plati.market APIs',
+    contactTitle:'Need help? Contact Seller',
+    contactDesc:'Having issues with your account? Message us directly on Plati.market — we respond fast.',
+    contactBtn:'Contact',
+    reviewRemind:"And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨",
+    checkAnother:'Check Another',secure:'Secure SSL Verification via Plati.market APIs',
     verified:'● Verified Paid',alreadyDelivered:'● Previously Delivered',
     plan7d:'⚡ 7 Days',plan1m:'✨ 1 Month',plan6m:'👑 6 Months',
   },
@@ -318,6 +351,10 @@ const S={
     rule3:'Если вас выбрасывает и появляется «неверный пароль» или «слишком много попыток» — аккаунт используется на 3+ устройствах. Гарантия НЕ распространяется.',
     rule4:'«Достигнут максимум попыток» = 3+ устройства = Гарантия не распространяется',
     warning:'Сохраните эту страницу или скриншот. Аккаунт можно получить в любое время по уникальному коду и email.',
+    contactTitle:'💬 Нужна помощь? Напишите продавцу',
+    contactDesc:'Проблемы с аккаунтом? Напишите нам напрямую на Plati.market — отвечаем быстро.',
+    contactBtn:'Написать',
+    reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам и очень много значит! ✨',
     checkAnother:'Проверить другой заказ',secure:'Безопасная SSL-проверка через API Plati.market',
     verified:'● Оплата подтверждена',alreadyDelivered:'● Ранее доставлено',
     plan7d:'⚡ 7 дней',plan1m:'✨ 1 месяц',plan6m:'👑 6 месяцев',
