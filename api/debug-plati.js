@@ -1,23 +1,20 @@
 /**
- * /api/debug-plati?code=UNIQUE_CODE&token=capcut-setup-2025
- * Tests multiple Plati API endpoints/headers to find which one bypasses DDoS-Guard.
+ * /api/debug-plati?token=capcut-setup-2025&code=UNIQUE_CODE
+ * Tests Digiseller API (api.digiseller.com) which is different from plati.market/api/api.ashx
+ * Plati.market runs on Digiseller platform - their separate API domain is NOT behind DDoS-Guard
  */
 const crypto = require('crypto');
 const fetch  = require('node-fetch');
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'capcut-setup-2025';
 
-function sign(idSeller, idGoods, code, secret) {
-  return crypto.createHash('md5').update(`${idSeller}${idGoods}${code}${secret}`).digest('hex');
-}
-
-async function tryFetch(url, options) {
+async function tryFetch(label, url, options = {}) {
   try {
     const r = await fetch(url, { timeout: 8000, ...options });
     const t = await r.text();
-    return { status: r.status, body: t.slice(0, 300), isJson: !t.trimStart().startsWith('<') };
+    return { label, status: r.status, isJson: !t.trimStart().startsWith('<'), preview: t.slice(0, 400) };
   } catch (e) {
-    return { status: 0, body: 'ERROR: ' + e.message, isJson: false };
+    return { label, status: 0, isJson: false, preview: 'ERROR: ' + e.message };
   }
 }
 
@@ -28,61 +25,56 @@ module.exports = async (req, res) => {
   if ((req.query.token || '') !== ADMIN_TOKEN)
     return res.status(401).json({ error: 'Unauthorized' });
 
-  const code     = req.query.code || 'TEST123';
-  const idSeller = process.env.PLATI_SELLER_ID  || '';
-  const idGoods  = process.env.PLATI_GOODS_ID   || '';
-  const secret   = process.env.PLATI_SECRET_KEY || '';
-  const sg       = sign(idSeller, idGoods, code, secret);
+  const uniqueCode = req.query.code || 'TEST123';
+  const sellerId   = parseInt(process.env.PLATI_SELLER_ID || process.env.DIGISELLER_SELLER_ID || '0', 10);
+  const apiKey     = process.env.DIGISELLER_API_KEY || process.env.PLATI_SECRET_KEY || '';
 
-  const formBody = `action=getInfoUniqueCode&id_goods=${idGoods}&unique_code=${code}&id_seller=${idSeller}&sign=${sg}`;
-  const getQuery = `?action=getInfoUniqueCode&id_goods=${idGoods}&unique_code=${code}&id_seller=${idSeller}&sign=${sg}`;
+  // Step 1: Try to get Digiseller token
+  const timestamp = Math.floor(Date.now() / 1000);
+  const sign = crypto.createHash('sha256').update(`${apiKey}${timestamp}`).digest('hex');
 
-  const browserHeaders = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8',
-    'Origin': 'https://plati.market',
-    'Referer': 'https://plati.market/',
-  };
+  let tokenResult;
+  let token = null;
+  try {
+    const r = await fetch('https://api.digiseller.com/api/apilogin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ seller_id: sellerId, timestamp, sign }),
+      timeout: 10000,
+    });
+    const data = await r.json();
+    tokenResult = { status: r.status, retval: data.retval, hasToken: !!data.token, desc: data.desc || data.retdesc };
+    if (data.token) token = data.token;
+  } catch (e) {
+    tokenResult = { error: e.message };
+  }
 
-  const results = await Promise.all([
-    // 1. plati.market POST plain
-    tryFetch('https://plati.market/api/api.ashx', {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formBody,
-    }).then(r => ({ test: '1_plati.market_POST_plain', ...r })),
+  // Step 2: If token obtained, try to verify unique code
+  let uniqueCodeResult = null;
+  if (token) {
+    uniqueCodeResult = await tryFetch(
+      'digiseller_unique_code_check',
+      `https://api.digiseller.com/api/purchases/unique-code/${uniqueCode}?token=${token}`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+  }
 
-    // 2. plati.market POST + browser headers
-    tryFetch('https://plati.market/api/api.ashx', {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...browserHeaders }, body: formBody,
-    }).then(r => ({ test: '2_plati.market_POST_browserHeaders', ...r })),
-
-    // 3. plati.market GET + browser headers
-    tryFetch('https://plati.market/api/api.ashx' + getQuery, {
-      headers: browserHeaders,
-    }).then(r => ({ test: '3_plati.market_GET_browserHeaders', ...r })),
-
-    // 4. plati.io POST (alternative domain)
-    tryFetch('https://plati.io/api/api.ashx', {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...browserHeaders }, body: formBody,
-    }).then(r => ({ test: '4_plati.io_POST', ...r })),
-
-    // 5. plati.io GET
-    tryFetch('https://plati.io/api/api.ashx' + getQuery, {
-      headers: browserHeaders,
-    }).then(r => ({ test: '5_plati.io_GET', ...r })),
-
-    // 6. wmcentre (Plati's payment processor API)
-    tryFetch('https://wmcentre.net/api/api.ashx', {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...browserHeaders }, body: formBody,
-    }).then(r => ({ test: '6_wmcentre_POST', ...r })),
-  ]);
-
-  const working = results.filter(r => r.isJson);
+  // Step 3: Also test old plati.market endpoint for comparison
+  const oldApiResult = await tryFetch(
+    'old_plati_ashx',
+    `https://plati.market/api/api.ashx?action=getInfoUniqueCode&id_goods=${process.env.PLATI_GOODS_ID}&unique_code=${uniqueCode}&id_seller=${sellerId}&sign=test`,
+    {}
+  );
 
   return res.json({
-    env: { idSeller: idSeller ? '✓' : '✗ MISSING', idGoods, secret: secret ? '✓' : '✗ MISSING', code },
-    sign: sg,
-    working_endpoints: working.length > 0 ? working : 'NONE — all blocked',
-    all_results: results.map(r => ({ test: r.test, status: r.status, isJson: r.isJson, preview: r.body.slice(0, 100) })),
+    env: {
+      sellerId,
+      apiKey: apiKey ? `${apiKey.slice(0, 6)}...` : '✗ MISSING (add DIGISELLER_API_KEY)',
+      uniqueCode,
+    },
+    step1_get_token: tokenResult,
+    step2_verify_unique_code: uniqueCodeResult,
+    step3_old_plati_ashx: { status: oldApiResult.status, isJson: oldApiResult.isJson },
+    note: 'If step1 retval=0 and step2 isJson=true → Digiseller API works! Switch lib/plati.js to use it.',
   });
 };
