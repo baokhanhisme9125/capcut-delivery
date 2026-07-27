@@ -41,16 +41,16 @@ module.exports = async (req, res) => {
       success: true,
       alreadyDelivered: true,
       account: {
-        email:    order.accountEmail,
+        email: order.accountEmail,
         password: order.accountPassword,
       },
       order: {
-        uniqueCode:  order.uniqueCode,
-        buyerEmail:  order.buyerEmail,
-        soldAt:      order.soldAt,
+        uniqueCode: order.uniqueCode,
+        buyerEmail: order.buyerEmail,
+        soldAt: order.soldAt,
         productType: order.productType,
         productName: order.productName,
-        orderId:     order.orderId,
+        orderId: order.orderId,
       },
     });
 
