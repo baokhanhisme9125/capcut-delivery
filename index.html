@@ -211,18 +211,14 @@ function showError(msg){ document.getElementById('error-msg-text').textContent=m
 
 async function verifyCode(code, email) {
   show('state-loading');
-  setStep(1); await sleep(600);
-  setStep(2); await sleep(700);
-  setStep(3);
-  try {
-    let url = `/api/verify?uniquecode=${encodeURIComponent(code)}`;
-    if(email) url += `&email=${encodeURIComponent(email)}`;
-    const resp = await fetch(url);
-    const data = await resp.json();
-    setStep(4); await sleep(400);
-    if(data.success) showSuccess(data);
-    else showError(data.error||'Error');
-  } catch { showError(STRINGS[lang].errConnect); }
+  setStep(1); await sleep(500);
+  setStep(2); await sleep(600);
+  setStep(3); await sleep(400);
+  setStep(4);
+  // Redirect to delivery.html with params (delivery.html calls the API itself)
+  let url = `delivery.html?uniquecode=${encodeURIComponent(code)}`;
+  if(email) url += `&email=${encodeURIComponent(email)}`;
+  window.location.href = url;
 }
 
 function copyText(elId, btn) {
