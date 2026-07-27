@@ -122,7 +122,21 @@ body::before{content:'';position:fixed;inset:0;background:
 .review-remind-box .rr-text{font-size:12.5px;color:rgba(255,183,77,.9);line-height:1.6;font-weight:500}
 .review-remind-box .rr-text b{color:#FFD54F;font-weight:700}
 
-/* Bottom bar */
+/* Rules box — card layout */
+.rules-box{background:rgba(255,183,77,.04);border:1px solid rgba(255,183,77,.15);border-radius:14px;padding:18px}
+.rules-title{font-size:13px;font-weight:800;color:var(--amber);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.rule-cards{display:flex;flex-direction:column;gap:10px}
+.rule-card{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:11px;border-left:3px solid transparent}
+.rule-card.rule-blue {background:rgba(79,195,247,.07); border-left-color:#4FC3F7}
+.rule-card.rule-amber{background:rgba(255,183,77,.07);  border-left-color:#FFB74D}
+.rule-card.rule-red  {background:rgba(255,92,138,.07);  border-left-color:#FF5C8A}
+.rule-card-icon{font-size:18px;flex-shrink:0;line-height:1.2}
+.rule-card-body{flex:1;min-width:0}
+.rule-card-title{font-size:12px;font-weight:800;margin-bottom:3px;letter-spacing:.01em}
+.rule-card.rule-blue  .rule-card-title{color:#4FC3F7}
+.rule-card.rule-amber .rule-card-title{color:#FFB74D}
+.rule-card.rule-red   .rule-card-title{color:#FF7B9C}
+.rule-card-text{font-size:12px;color:var(--muted);line-height:1.55;font-weight:500}
 .bottom-bar{margin-top:22px;display:flex;justify-content:center}
 .check-another{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:14px;color:var(--muted);padding:13px 32px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
 .check-another:hover{border-color:var(--violet);color:var(--text2)}
@@ -252,12 +266,36 @@ body::before{content:'';position:fixed;inset:0;background:
 
         <div class="rules-box">
           <div class="rules-title">📌 <span data-i18n="rulesTitle">Important Rules</span></div>
-          <ul class="rules-list">
-            <li data-i18n="rule1">If Pro effects are missing: log out → enable fresh VPN → clear app cache → log back in</li>
-            <li data-i18n="rule2">CapCut limits to <b>2 devices only</b> (PC + Mobile counted separately)</li>
-            <li data-i18n="rule3">If logged out and see <b>"password incorrect"</b> or <b>"too many login attempts"</b> — used on 3+ devices. <b>NOT covered by warranty.</b></li>
-            <li data-i18n="rule4"><b>"Maximum number of attempts reached"</b> = 3+ devices = No warranty</li>
-          </ul>
+          <div class="rule-cards">
+
+            <!-- Rule 1: VPN fix -->
+            <div class="rule-card rule-blue">
+              <div class="rule-card-icon">🔄</div>
+              <div class="rule-card-body">
+                <div class="rule-card-title" data-i18n="ruleATitle">Pro effects missing?</div>
+                <div class="rule-card-text" data-i18n="ruleAText">Log out → Enable a fresh VPN → Clear app cache → Log back in</div>
+              </div>
+            </div>
+
+            <!-- Rule 2: Device limit -->
+            <div class="rule-card rule-amber">
+              <div class="rule-card-icon">📱</div>
+              <div class="rule-card-body">
+                <div class="rule-card-title" data-i18n="ruleBTitle">2 Devices Maximum</div>
+                <div class="rule-card-text" data-i18n="ruleBText">CapCut allows only 2 devices — PC and Mobile are counted separately.</div>
+              </div>
+            </div>
+
+            <!-- Rule 3: Warranty -->
+            <div class="rule-card rule-red">
+              <div class="rule-card-icon">🚫</div>
+              <div class="rule-card-body">
+                <div class="rule-card-title" data-i18n="ruleCTitle">No Warranty If Used on 3+ Devices</div>
+                <div class="rule-card-text" data-i18n="ruleCText">"Password incorrect" / "Too many login attempts" / "Maximum attempts reached" — all mean 3+ devices. Not covered.</div>
+              </div>
+            </div>
+
+          </div>
         </div>
 
         <div class="warn-box">
@@ -312,10 +350,12 @@ const S={
     p4:'Step 4: Scan with your phone → Done ✓',
     p5:'⚠️ Log out from mobile after scanning (2-device limit)',
     rulesTitle:'Important Rules',
-    rule1:'If Pro effects are missing: log out → enable fresh VPN → clear app cache → log back in',
-    rule2:'CapCut limits to 2 devices only (PC + Mobile counted separately)',
-    rule3:'If logged out and see "password incorrect" or "too many login attempts" — used on 3+ devices. NOT covered by warranty.',
-    rule4:'"Maximum number of attempts reached" = 3+ devices = No warranty',
+    ruleATitle:'Pro effects missing?',
+    ruleAText:'Log out → Enable a fresh VPN → Clear app cache → Log back in',
+    ruleBTitle:'2 Devices Maximum',
+    ruleBText:'CapCut allows only 2 devices — PC and Mobile are counted separately.',
+    ruleCTitle:'No Warranty If Used on 3+ Devices',
+    ruleCText:'"Password incorrect" / "Too many login attempts" / "Maximum attempts reached" — all mean 3+ devices. Not covered.',
     warning:'Save this page or screenshot it. You can retrieve your account anytime using your unique code and purchase email.',
     contactTitle:'Need help? Contact Seller',
     contactDesc:'Having issues with your account? Message us directly on Plati.market — we respond fast.',
@@ -346,11 +386,14 @@ const S={
     p4:'Шаг 4: Отсканируйте телефоном → Готово ✓',
     p5:'⚠️ Выйдите из аккаунта на мобильном после сканирования (лимит 2 устройства)',
     rulesTitle:'Важные правила',
-    rule1:'Если Pro-эффекты недоступны: выйдите → включите новый VPN → очистите кэш → войдите снова',
-    rule2:'CapCut ограничил аккаунты до 2 устройств (ПК + Мобильный считаются отдельно)',
-    rule3:'Если вас выбрасывает и появляется «неверный пароль» или «слишком много попыток» — аккаунт используется на 3+ устройствах. Гарантия НЕ распространяется.',
-    rule4:'«Достигнут максимум попыток» = 3+ устройства = Гарантия не распространяется',
+    ruleATitle:'Про-эффекты недоступны?',
+    ruleAText:'Выйдите → Включите новый VPN → Очистите кэш приложения → Войдите снова',
+    ruleBTitle:'Максимум 2 устройства',
+    ruleBText:'CapCut допускает только 2 устройства — ПК и мобильный считаются отдельно.',
+    ruleCTitle:'Гарантия не действует при 3+ устройствах',
+    ruleCText:'«Неверный пароль» / «Слишком много попыток» / «Достигнут максимум» — всё это означает 3+ устройства. Гарантия не распространяется.',
     warning:'Сохраните эту страницу или скриншот. Аккаунт можно получить в любое время по уникальному коду и email.',
+
     contactTitle:'💬 Нужна помощь? Напишите продавцу',
     contactDesc:'Проблемы с аккаунтом? Напишите нам напрямую на Plati.market — отвечаем быстро.',
     contactBtn:'Написать',
