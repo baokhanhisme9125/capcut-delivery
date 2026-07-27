@@ -1,64 +1,119 @@
 /**
  * /api/verify?uniquecode=XXX&email=YYY
- * Looks up an existing order from Google Sheets Orders tab.
- * No Plati API call needed — orders are stored by /api/webhook at purchase time.
+ *
+ * 1. Check Orders sheet (idempotency)
+ * 2. Verify via Digiseller API (api.digiseller.com — no DDoS-Guard)
+ * 3. Auto-detect product variant (7d / 1m / 6m) from purchase options
+ * 4. Deliver account from correct sheet + save to Orders
  */
-const { findOrderByCode } = require('../lib/sheets');
+const { verifyUniqueCode } = require('../lib/plati');
+const {
+  getNextAvailableAccount,
+  deleteAccountRow,
+  saveOrder,
+  findOrderByCode,
+} = require('../lib/sheets');
 
 module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { uniquecode, email } = req.query;
+  const code       = (req.query.uniquecode || '').trim();
+  const emailParam = (req.query.email      || '').trim().toLowerCase();
 
-  if (!uniquecode || uniquecode.trim().length < 5) {
+  if (!code || code.length < 5) {
     return res.status(400).json({ success: false, error: 'Missing or invalid unique code.' });
   }
 
   try {
-    const order = await findOrderByCode(uniquecode.trim());
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        error: 'Order not found. Please wait a few seconds and try again, or contact support.',
+    /* ── 1. Idempotency: already delivered? ─────────────────────────── */
+    const existing = await findOrderByCode(code);
+    if (existing) {
+      if (emailParam && existing.buyerEmail && existing.buyerEmail !== 'unknown') {
+        if (emailParam !== existing.buyerEmail.toLowerCase()) {
+          return res.status(403).json({
+            success: false,
+            error: 'Email does not match purchase email. / Email не совпадает.',
+          });
+        }
+      }
+      return res.status(200).json({
+        success: true,
+        alreadyDelivered: true,
+        account: { email: existing.accountEmail, password: existing.accountPassword },
+        order: {
+          uniqueCode:  existing.uniqueCode,
+          buyerEmail:  existing.buyerEmail,
+          soldAt:      existing.soldAt,
+          productType: existing.productType,
+          productName: existing.productName,
+          orderId:     existing.orderId,
+        },
       });
     }
 
-    // Optional email check for security
-    if (email && order.buyerEmail && order.buyerEmail !== 'unknown') {
-      if (email.trim().toLowerCase() !== order.buyerEmail.trim().toLowerCase()) {
+    /* ── 2. Verify via Digiseller API (auto-detects variant) ─────────── */
+    let platiInfo;
+    try {
+      platiInfo = await verifyUniqueCode(code);
+    } catch (err) {
+      return res.status(400).json({ success: false, error: err.message });
+    }
+
+    /* ── 3. Optional email check ─────────────────────────────────────── */
+    const buyerEmail = (platiInfo.buyer || '').toLowerCase();
+    if (emailParam && buyerEmail && buyerEmail !== 'unknown') {
+      if (emailParam !== buyerEmail) {
         return res.status(403).json({
           success: false,
-          error: 'Email does not match the purchase email. / Email не совпадает с email при покупке.',
+          error: 'Email does not match purchase email. / Email не совпадает.',
         });
       }
     }
 
+    const { productType, productName, sheetName } = platiInfo;
+
+    /* ── 4. Get account from correct product sheet ───────────────────── */
+    const account = await getNextAvailableAccount(sheetName);
+    if (!account) {
+      return res.status(503).json({
+        success: false,
+        outOfStock: true,
+        productName,
+        error: `Out of stock for ${productName}. Please contact support.`,
+      });
+    }
+
+    /* ── 5. Delete from sheet + save to Orders ───────────────────────── */
+    await deleteAccountRow(sheetName, account.rowIndex);
+    await saveOrder({
+      uniqueCode:      code,
+      buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
+      accountEmail:    account.email,
+      accountPassword: account.password,
+      orderId:         platiInfo.orderId,
+      productType,
+      productName,
+    });
+
+    /* ── 6. Return ───────────────────────────────────────────────────── */
     return res.status(200).json({
       success: true,
-      alreadyDelivered: true,
-      account: {
-        email: order.accountEmail,
-        password: order.accountPassword,
-      },
+      alreadyDelivered: false,
+      account: { email: account.email, password: account.password },
       order: {
-        uniqueCode: order.uniqueCode,
-        buyerEmail: order.buyerEmail,
-        soldAt: order.soldAt,
-        productType: order.productType,
-        productName: order.productName,
-        orderId: order.orderId,
+        uniqueCode:  code,
+        buyerEmail:  platiInfo.buyer || emailParam || 'unknown',
+        soldAt:      new Date().toISOString(),
+        productType,
+        productName,
+        orderId:     platiInfo.orderId,
       },
     });
 
   } catch (err) {
-    console.error('[verify] Error:', err.message);
-    return res.status(500).json({
-      success: false,
-      error: 'Server error. Please try again later.',
-    });
+    console.error('[verify] Unexpected error:', err.message);
+    return res.status(500).json({ success: false, error: 'Server error. Please try again.' });
   }
 };
