@@ -191,6 +191,25 @@ body::before{content:'';position:fixed;inset:0;background:
     <a href="/" class="check-another">← <span data-i18n="backHome">Back to Home</span></a>
   </div>
 
+  <!-- Out of Stock -->
+  <div id="state-oos" style="display:none;text-align:center;padding:48px 20px">
+    <div style="font-size:52px;margin-bottom:16px">📦</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--amber)" id="oos-title">Temporarily Out of Stock</div>
+    <div style="font-size:13.5px;color:var(--muted);margin-bottom:8px" id="oos-product"></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.6">
+      We’re restocking as fast as possible.<br>Click below to contact the seller directly — we’ll resolve your order ASAP.
+    </div>
+    <a id="oos-contact-link" href="#" target="_blank"
+       style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#FFB74D,#F57C00);border:none;border-radius:13px;color:#000;padding:13px 26px;font-size:14px;font-weight:800;text-decoration:none;cursor:pointer;box-shadow:0 4px 20px rgba(255,183,77,.4);transition:all .2s"
+       onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 28px rgba(255,183,77,.55)'"
+       onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 20px rgba(255,183,77,.4)'">
+      💬 Contact Seller &amp; Resolve Order
+    </a>
+    <div style="margin-top:18px">
+      <a href="/" style="font-size:13px;color:var(--muted);text-decoration:none">← Back to Home</a>
+    </div>
+  </div>
+
   <!-- Result -->
   <div id="state-result" style="display:none">
     <div class="status-bar">
@@ -436,7 +455,7 @@ function setLang(l){
   if(badge&&badge.dataset.type){const m=PLAN[badge.dataset.type]||PLAN['1m'];badge.textContent=S[l]['plan'+badge.dataset.type]||m.en;}
 }
 
-function show(id){['state-loading','state-error','state-result'].forEach(s=>document.getElementById(s).style.display='none');document.getElementById(id).style.display='block';}
+function show(id){['state-loading','state-error','state-oos','state-result'].forEach(s=>document.getElementById(s).style.display='none');document.getElementById(id).style.display='block';}
 
 function formatDate(iso){try{return new Date(iso).toLocaleString(lang==='ru'?'ru-RU':'en-GB',{dateStyle:'medium',timeStyle:'short'});}catch{return iso;}}
 
@@ -482,6 +501,15 @@ async function load(){
     const res=await fetch(url);
     const data=await res.json();
     if(!data.success){
+      if(data.outOfStock){
+        // Out-of-stock: show dedicated UI with Digiseller order link
+        document.getElementById('oos-product').textContent = data.productName || '';
+        const oosLink = data.orderId
+          ? `https://digiseller.me/info/buy.asp?id_i=${data.orderId}&lang=en-US`
+          : 'https://digiseller.me/';
+        document.getElementById('oos-contact-link').href = oosLink;
+        show('state-oos'); return;
+      }
       document.getElementById('err-msg').textContent=data.error||'Unknown error';
       show('state-error');return;
     }

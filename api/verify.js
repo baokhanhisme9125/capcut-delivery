@@ -81,6 +81,7 @@ module.exports = async (req, res) => {
         success: false,
         outOfStock: true,
         productName,
+        orderId: platiInfo.orderId || null,
         error: `Out of stock for ${productName}. Please contact support.`,
       });
     }
