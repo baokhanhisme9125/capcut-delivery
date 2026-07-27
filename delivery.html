@@ -93,7 +93,7 @@ body::before{content:'';position:fixed;inset:0;background:
 .guide-box{background:rgba(38,198,218,.05);border:1px solid rgba(38,198,218,.17);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .guide-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);margin-bottom:9px;padding:5px 11px;background:rgba(38,198,218,.1);border-radius:8px;display:inline-block}
 .guide-list{list-style:none;display:flex;flex-direction:column;gap:7px}
-.guide-list li{font-size:12.5px;color:var(--muted);display:flex;align-items:flex-start;gap:8px;line-height:1.55;font-weight:500}
+.guide-list li{font-size:12.5px;color:var(--text2);display:flex;align-items:flex-start;gap:8px;line-height:1.55;font-weight:500}
 .guide-list li::before{content:'→';color:var(--teal);font-weight:800;flex-shrink:0;margin-top:1px}
 .guide-list li b{color:var(--text2);font-weight:700}
 .guide-divider{border:none;border-top:1px solid var(--border);margin:0}
@@ -282,14 +282,14 @@ body::before{content:'';position:fixed;inset:0;background:
           <div class="rules-notice-head">
             <span class="rules-notice-head-icon">📌</span>
             <div>
-              <div class="rules-notice-title">Instructions for Use:</div>
-              <div class="rules-notice-sub">Official notice from CapCut 👈👈</div>
+              <div class="rules-notice-title" data-i18n="rulesSectionTitle">Instructions for Use:</div>
+              <div class="rules-notice-sub" data-i18n="rulesSectionSub">Official notice from CapCut 👈👈</div>
             </div>
           </div>
           <div class="rules-notice-list">
-            <div class="rn-item">If Pro effects are missing: log out, turn on fresh VPN, clear app cache, then log back in.</div>
-            <div class="rn-item">The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.</div>
-            <div class="rn-item rn-warn">If you suddenly get logged out and see <b>"password incorrect"</b> or <b>"too many login attempts"</b> — the account was used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b></div>
+            <div class="rn-item" data-i18n="rnItem1">If Pro effects are missing: log out, Turn on fresh VPN, clear app cache, then log back in.</div>
+            <div class="rn-item" data-i18n="rnItem2">The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.</div>
+            <div class="rn-item rn-warn" data-i18n="rnItem3">If you suddenly get logged out and see <b>"password incorrect"</b> or <b>"too many login attempts"</b> — the account was used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b></div>
           </div>
         </div>
 
@@ -301,7 +301,10 @@ body::before{content:'';position:fixed;inset:0;background:
         <!-- Order link box -->
         <div class="order-link-box" id="order-link-box" style="display:none">
           <div class="order-link-top">
-            <div class="order-link-text">📦 <b data-i18n="orderLinkTitle">Track your order</b><br><span data-i18n="orderLinkDesc">View order details &amp; leave a review on Plati.market</span></div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#7DD3FC;margin-bottom:4px">📦 <span data-i18n="orderLinkTitle">Track your order</span></div>
+              <div style="font-size:11.5px;color:var(--muted);font-weight:500" data-i18n="orderLinkDesc">View order details &amp; leave a review on Plati.market</div>
+            </div>
             <a id="order-link" href="#" target="_blank" class="order-link-btn">🔗 <span data-i18n="orderLinkBtn">View Order</span></a>
           </div>
           <div class="order-link-divider"></div>
@@ -366,6 +369,11 @@ const S={
     orderLinkDesc:'Open order details & contact seller on Plati.market',
     orderLinkBtn:'View Order',
     reviewRemind:"And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨",
+    rulesSectionTitle:'Instructions for Use:',
+    rulesSectionSub:'Official notice from CapCut 👈👈',
+    rnItem1:'If Pro effects are missing: log out, Turn on fresh VPN, clear app cache, then log back in.',
+    rnItem2:'The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.',
+    rnItem3:'If you suddenly get logged out and see <b>"password incorrect"</b> or <b>"too many login attempts"</b> — account used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b>',
     checkAnother:'Check Another',secure:'Secure SSL Verification via Plati.market APIs',
     verified:'● Verified Paid',alreadyDelivered:'● Previously Delivered',
     plan7d:'⚡ 7 Days',plan1m:'✨ 1 Month',plan6m:'👑 6 Months',
@@ -403,6 +411,11 @@ const S={
     orderLinkDesc:'Откройте детали заказа и свяжитесь с продавцом',
     orderLinkBtn:'Открыть заказ',
     reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам! ✨',
+    rulesSectionTitle:'Инструкции по использованию:',
+    rulesSectionSub:'Официальное уведомление CapCut 👈👈',
+    rnItem1:'Если Pro-эффекты недоступны: выйдите, включите новый VPN, очистите кэш, зайдите снова.',
+    rnItem2:'CapCut изменил политику с 3 устройств до <b>только 2 устройств</b>, включая ПК и мобильный.',
+    rnItem3:'Если вас выбросило и появилось <b>«неверный пароль»</b> или <b>«слишком много попыток»</b> — аккаунт используется на 3+ устройствах. <b>«Максимальное количество попыток»</b> = <b>Гарантия не действует.</b>',
     checkAnother:'Проверить другой заказ',secure:'Безопасная SSL-проверка через API Plati.market',
     verified:'● Оплата подтверждена',alreadyDelivered:'● Ранее доставлено',
     plan7d:'⚡ 7 дней',plan1m:'✨ 1 месяц',plan6m:'👑 6 месяцев',
@@ -418,10 +431,9 @@ let lang='en';
 
 function setLang(l){
   lang=l;
-  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(S[l][k])el.textContent=S[l][k];});
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(S[l]&&S[l][k]!==undefined)el.innerHTML=S[l][k];});
   document.getElementById('btn-en').classList.toggle('active',l==='en');
   document.getElementById('btn-ru').classList.toggle('active',l==='ru');
-  // update plan badge text if result visible
   const badge=document.getElementById('i-plan');
   if(badge&&badge.dataset.type){const m=PLAN[badge.dataset.type]||PLAN['1m'];badge.textContent=S[l]['plan'+badge.dataset.type]||m.en;}
 }
@@ -495,7 +507,7 @@ async function load(){
     const orderId = data.order.orderId || '';
     if(orderId){
       document.getElementById('order-link').href = `https://digiseller.me/info/buy.asp?id_i=${orderId}&lang=en-US`;
-      document.getElementById('order-link-box').style.display = 'flex';
+      document.getElementById('order-link-box').style.display = 'block';
     }
     show('state-result');
     if(!data.alreadyDelivered)launchConfetti();
