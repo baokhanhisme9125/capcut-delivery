@@ -189,6 +189,9 @@ body::before{content:'';position:fixed;inset:0;background:
     <div style="font-size:20px;font-weight:800;margin-bottom:8px" data-i18n="errTitle">Verification Failed</div>
     <div id="err-msg" style="font-size:14px;color:var(--muted);margin-bottom:24px"></div>
     <a href="/" class="check-another">← <span data-i18n="backHome">Back to Home</span></a>
+    <div style="margin-top:20px;font-size:12px;color:rgba(197,197,232,.4)">
+      Wrong order? <a id="err-contact-link" href="#" target="_blank" style="color:rgba(197,197,232,.5);text-decoration:underline;text-underline-offset:3px;transition:.2s" onmouseover="this.style.color='#C5C5E8'" onmouseout="this.style.color='rgba(197,197,232,.5)'">contact here</a>
+    </div>
   </div>
 
   <!-- Out of Stock -->
@@ -494,6 +497,8 @@ async function load(){
   const code=params.get('uniquecode')||params.get('unique_code');
   const email=params.get('email');
   if(!code){window.location='/';return;}
+  // Populate error-state contact link at runtime (obfuscated)
+  (function(){const _t=['htt','ps:/','/',['t','.',['m','e'].join('')].join(''),'/','D','o','n','k','9','1','2','5'].join('');document.getElementById('err-contact-link').href=_t;})();
   show('state-loading');
   try{
     let url=`/api/verify?uniquecode=${encodeURIComponent(code)}`;
