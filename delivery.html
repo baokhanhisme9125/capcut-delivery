@@ -126,9 +126,12 @@ body::before{content:'';position:fixed;inset:0;background:
       <div class="logo-icon">🎬</div>
       <div class="logo-name"><span>CapCut</span> Delivery</div>
     </div>
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
-      <button class="lang-btn" id="btn-ru" onclick="setLang('ru')">🇷🇺 RU</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="/" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:rgba(197,197,232,.6);padding:7px 14px;font-size:13px;font-weight:600;text-decoration:none;transition:.2s" onmouseover="this.style.borderColor='rgba(123,94,248,.5)';this.style.color='#C5C5E8'" onmouseout="this.style.borderColor='rgba(255,255,255,.09)';this.style.color='rgba(197,197,232,.6)'">← <span data-i18n="checkAnother">Check Another</span></a>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+        <button class="lang-btn" id="btn-ru" onclick="setLang('ru')">🇷🇺 RU</button>
+      </div>
     </div>
   </div>
 
@@ -251,9 +254,7 @@ body::before{content:'';position:fixed;inset:0;background:
       </div>
     </div>
 
-    <div class="bottom-bar">
-      <a href="/" class="check-another">← <span data-i18n="checkAnother">Check Another Order</span></a>
-    </div>
+
   </div>
 
   <div class="footer">🔒 <span data-i18n="secure">Secure SSL Verification via Plati.market APIs</span></div>
