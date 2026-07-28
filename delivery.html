@@ -519,7 +519,8 @@ async function load(){
       show('state-error');return;
     }
     // Populate
-    document.getElementById('i-code').textContent=(data.order.uniqueCode||code).slice(0,16)+'...';
+    document.getElementById('i-code').textContent=data.order.uniqueCode||code;
+
     document.getElementById('i-email').textContent=data.order.buyerEmail||email||'—';
     document.getElementById('i-date').textContent=formatDate(data.order.soldAt);
     document.getElementById('acc-email').textContent=data.account.email;
