@@ -2,7 +2,6 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/img/:path*", "destination": "/img/:path*" },
     { "source": "/lookup", "destination": "/lookup.html" },
     { "source": "/", "destination": "/index.html" }
   ],
