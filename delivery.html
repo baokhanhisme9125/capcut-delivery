@@ -70,7 +70,7 @@ body::before{content:'';position:fixed;inset:0;background:
 .review-box{margin-top:18px;background:rgba(224,64,251,.06);border:1px solid rgba(224,64,251,.18);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:flex-start}
 .review-icon{font-size:24px;flex-shrink:0}
 .review-title{font-size:13px;font-weight:700;color:var(--pink);margin-bottom:4px}
-.review-desc{font-size:11px;color:var(--muted);line-height:1.55}
+.review-desc{font-size:11px;color:var(--text2);line-height:1.55}
 
 /* Account panel */
 .account-panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
@@ -145,7 +145,7 @@ body::before{content:'';position:fixed;inset:0;background:
 .contact-btn{flex-shrink:0;background:linear-gradient(135deg,#7B5EF8,#E040FB);border:none;border-radius:10px;color:#fff;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;box-shadow:0 3px 12px rgba(123,94,248,.35)}
 .contact-btn:hover{box-shadow:0 5px 20px rgba(123,94,248,.55);transform:translateY(-1px)}
 .support-divider{height:1px;background:rgba(123,94,248,.18);margin:0 18px}
-.support-review{padding:12px 18px;display:flex;align-items:flex-start;gap:10px;font-size:12px;color:rgba(197,197,232,.65);line-height:1.6;font-weight:500}
+.support-review{padding:12px 18px;display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text2);line-height:1.6;font-weight:500}
 .support-review b{color:#C4B5FD;font-weight:700}
 .support-review-star{font-size:15px;flex-shrink:0}
 
@@ -314,7 +314,7 @@ body::before{content:'';position:fixed;inset:0;background:
             </div>
           </div>
           <div class="rules-notice-list">
-            <div class="rn-item" data-i18n="rnVpn">🇷🇺 Russian users: <b>'Turn on VPN'</b> before logging in</div>
+            <div class="rn-item" data-i18n="rnVpn">Russian users: <b>'Turn on VPN'</b> before logging in.</div>
             <div class="rn-item" data-i18n="rnItem1">If Pro effects are missing: log out, Turn on fresh VPN, clear app cache, then log back in.</div>
             <div class="rn-item" data-i18n="rnItem2">The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.</div>
             <div class="rn-item rn-warn" data-i18n="rnItem3">If you suddenly get logged out and see <b>"Password incorrect"</b> or <b>"Too many login attempts"</b> — the account was used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b></div>
@@ -396,12 +396,12 @@ const S={
     reviewRemind:"And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨",
     rulesSectionTitle:'Instructions for Use:',
     rulesSectionSub:'Official notice from CapCut 👈👈',
-    rnVpn:'🇷🇺 Russian users: <b>\'Turn on VPN\'</b> before logging in',
+    rnVpn:'Russian users: <b>\'Turn on VPN\'</b> before logging in.',
     rnItem1:'If Pro effects are missing: log out, Turn on fresh VPN, clear app cache, then log back in.',
     rnItem2:'The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.',
     rnItem3:'If you suddenly get logged out and see <b>"Password incorrect"</b> or <b>"Too many login attempts"</b> — account used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b>',
     checkAnother:'Check Another',secure:'Secure SSL Verification via Plati.market APIs',
-    verified:'● Verified Paid',alreadyDelivered:'● Previously Delivered',
+    verified:'● Verified Paid',alreadyDelivered:'Previously Delivered',
     plan7d:'⚡ 7 Days',plan1m:'✨ 1 Month',plan6m:'👑 6 Months',
   },
   ru:{
@@ -437,12 +437,12 @@ const S={
     reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам! ✨',
     rulesSectionTitle:'Инструкции по использованию:',
     rulesSectionSub:'Официальное уведомление CapCut 👈👈',
-    rnVpn:'🇷🇺 Пользователи из России: <b>«Включите VPN»</b> перед входом',
+    rnVpn:'Пользователи из России: <b>«Включите VPN»</b> перед входом.',
     rnItem1:'Если Pro-эффекты недоступны: выйдите, включите новый VPN, очистите кэш, зайдите снова.',
     rnItem2:'CapCut изменил политику с 3 устройств до <b>только 2 устройств</b>, включая ПК и мобильный.',
     rnItem3:'Если вас выбросило и появилось <b>«неверный пароль»</b> или <b>«слишком много попыток»</b> — аккаунт используется на 3+ устройствах. <b>«Максимальное количество попыток»</b> = <b>Гарантия не действует.</b>',
     checkAnother:'Проверить другой заказ',secure:'Безопасная SSL-проверка через API Plati.market',
-    verified:'● Оплата подтверждена',alreadyDelivered:'● Ранее доставлено',
+    verified:'● Оплата подтверждена',alreadyDelivered:'Ранее доставлено',
     plan7d:'⚡ 7 дней',plan1m:'✨ 1 месяц',plan6m:'👑 6 месяцев',
   }
 
