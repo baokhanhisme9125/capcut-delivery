@@ -280,10 +280,14 @@ body::before{content:'';position:fixed;inset:0;background:
           <div>
             <div class="guide-section-title" data-i18n="secMobile">📱 For Mobile</div>
             <ul class="guide-list">
-              <li data-i18n="m2">Go to <b>Me</b> tab → tap <b>'Log in via Email'</b></li>
+              <li data-i18n="m2">Go to <b>Me</b> → <b>'Log in via Email'</b></li>
               <li data-i18n="m3">Enter the <b>'Email &amp; password'</b> → <b>'Login'</b></li>
-              <li data-i18n="m4">🇷🇺 Russian users: <b>'Turn on VPN'</b> before logging in</li>
             </ul>
+            <!-- Guide screenshots: image 5 (Me tab) first, then image 4 (login) -->
+            <div style="display:flex;gap:8px;margin-top:14px">
+              <img src="/img/guide-me.png" alt="Me tab" style="width:50%;border-radius:10px;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,.4)">
+              <img src="/img/guide-login.png" alt="Login screen" style="width:50%;border-radius:10px;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,.4)">
+            </div>
           </div>
           <hr class="guide-divider"/>
           <div>
@@ -310,9 +314,10 @@ body::before{content:'';position:fixed;inset:0;background:
             </div>
           </div>
           <div class="rules-notice-list">
+            <div class="rn-item" style="color:#7DD3FC" data-i18n="rnVpn">🇷🇺 Russian users: <b>'Turn on VPN'</b> before logging in</div>
             <div class="rn-item" data-i18n="rnItem1">If Pro effects are missing: log out, Turn on fresh VPN, clear app cache, then log back in.</div>
             <div class="rn-item" data-i18n="rnItem2">The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.</div>
-            <div class="rn-item rn-warn" data-i18n="rnItem3">If you suddenly get logged out and see <b>"password incorrect"</b> or <b>"too many login attempts"</b> — the account was used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b></div>
+            <div class="rn-item rn-warn" data-i18n="rnItem3">If you suddenly get logged out and see <b>"Password incorrect"</b> or <b>"Too many login attempts"</b> — the account was used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b></div>
           </div>
         </div>
 
@@ -369,9 +374,8 @@ const S={
     guideTitle:'Activation Guide',
     secMobile:'📱 For Mobile',
     m1:'Download <b>CapCut</b> on your phone',
-    m2:'Go to <b>Me</b> tab → tap <b>\'Log in via Email\'</b>',
+    m2:'Go to <b>Me</b> → <b>\'Log in via Email\'</b>',
     m3:'Enter the <b>\'Email &amp; password\'</b> → <b>\'Login\'</b>',
-    m4:'🇷🇺 Russian users: <b>\'Turn on VPN\'</b> before logging in',
     secPC:'💻 For PC / Laptop',
     p1:'<b>\'Log in to CapCut\'</b> on your mobile first',
     p2:'Open <b>\'CapCut on PC/Laptop\'</b>',
@@ -392,6 +396,7 @@ const S={
     reviewRemind:"And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨",
     rulesSectionTitle:'Instructions for Use:',
     rulesSectionSub:'Official notice from CapCut 👈👈',
+    rnVpn:'🇷🇺 Russian users: <b>\'Turn on VPN\'</b> before logging in',
     rnItem1:'If Pro effects are missing: log out, Turn on fresh VPN, clear app cache, then log back in.',
     rnItem2:'The CapCut platform has changed its login policy from 3 devices down to <b>only 2 devices</b>, including both PC and mobile.',
     rnItem3:'If you suddenly get logged out and see <b>"Password incorrect"</b> or <b>"Too many login attempts"</b> — account used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b>',
@@ -410,9 +415,8 @@ const S={
     guideTitle:'Инструкция по активации',
     secMobile:'📱 Для мобильного',
     m1:'Скачайте <b>CapCut</b> на телефон',
-    m2:'Перейдите во вкладку <b>«Я»</b> → нажмите <b>«Войти через Email»</b>',
+    m2:'Перейдите в <b>«Я»</b> → <b>«Войти через Email»</b>',
     m3:'Введите <b>« email и пароль »</b> → <b>«Войти»</b>',
-    m4:'🇷🇺 Пользователи из России: <b>«Включите VPN»</b> перед входом',
     secPC:'💻 Для ПК / Ноутбука',
     p1:'<b>«Войдите в CapCut»</b> сначала на мобильном',
     p2:'Откройте <b>«CapCut на ПК/Ноутбуке»</b>',
@@ -433,6 +437,7 @@ const S={
     reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам! ✨',
     rulesSectionTitle:'Инструкции по использованию:',
     rulesSectionSub:'Официальное уведомление CapCut 👈👈',
+    rnVpn:'🇷🇺 Пользователи из России: <b>«Включите VPN»</b> перед входом',
     rnItem1:'Если Pro-эффекты недоступны: выйдите, включите новый VPN, очистите кэш, зайдите снова.',
     rnItem2:'CapCut изменил политику с 3 устройств до <b>только 2 устройств</b>, включая ПК и мобильный.',
     rnItem3:'Если вас выбросило и появилось <b>«неверный пароль»</b> или <b>«слишком много попыток»</b> — аккаунт используется на 3+ устройствах. <b>«Максимальное количество попыток»</b> = <b>Гарантия не действует.</b>',
