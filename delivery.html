@@ -497,7 +497,10 @@ function launchConfetti(){
   draw();
 }
 
+let _loadCalled = false;
 async function load(){
+  if(_loadCalled) return;
+  _loadCalled = true;
   const params=new URLSearchParams(window.location.search);
   const code=params.get('uniquecode')||params.get('unique_code');
   const email=params.get('email');
@@ -549,6 +552,7 @@ async function load(){
     show('state-result');
     if(!data.alreadyDelivered)launchConfetti();
   }catch(e){
+    _loadCalled = false; // allow retry on network error
     document.getElementById('err-msg').textContent='Cannot connect to server.';
     show('state-error');
   }
