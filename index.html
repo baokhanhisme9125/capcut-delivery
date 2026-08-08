@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CapCut Delivery – Get Your Account</title>
-  <meta name="description" content="Receive your CapCut Pro account automatically after payment on Plati.market or GGSEL.net." />
+  <meta name="description" content="Receive your CapCut Pro account automatically after payment on Plati.market." />
   <link rel="stylesheet" href="style.css" />
   <style>
     .lang-toggle{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px}
@@ -110,44 +110,20 @@
     <!-- MANUAL (no code in URL) -->
     <div id="state-manual">
       <div class="section-title" data-i18n="manualTitle">Get Your Account</div>
-      <div class="section-desc" data-i18n="manualDesc">After payment on <strong>Plati.market</strong> or <strong>GGSEL.net</strong>, select your platform and enter your details to receive your CapCut Pro account.</div>
+      <div class="section-desc" data-i18n="manualDesc">After payment on Plati.market, enter your <strong>Unique Code</strong> and <strong>purchase email</strong> to receive your CapCut Pro account.</div>
 
-      <!-- Platform tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:20px">
-        <button class="lang-btn active" id="tab-plati" onclick="switchTab('plati')" style="flex:1;padding:10px;font-size:14px">🛒 Plati.market</button>
-        <button class="lang-btn" id="tab-ggsel" onclick="switchTab('ggsel')" style="flex:1;padding:10px;font-size:14px">🎮 GGSEL.net</button>
+      <div class="form-group">
+        <label class="form-label" for="manual-code" data-i18n="uniqueCode">Unique Code</label>
+        <input id="manual-code" class="form-input" type="text" autocomplete="off"
+               onkeydown="if(event.key==='Enter')document.getElementById('manual-email').focus()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="manual-email" data-i18n="emailPurchase">Email used for purchase</label>
+        <input id="manual-email" class="form-input" type="email" autocomplete="off"
+               onkeydown="if(event.key==='Enter')submitManual()" />
       </div>
 
-      <!-- Plati form -->
-      <div id="form-plati">
-        <div class="form-group">
-          <label class="form-label" for="manual-code" data-i18n="uniqueCode">Unique Code</label>
-          <input id="manual-code" class="form-input" type="text" autocomplete="off" placeholder="e.g. 6850BBBA697946A9"
-                 onkeydown="if(event.key==='Enter')document.getElementById('manual-email').focus()" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="manual-email" data-i18n="emailPurchase">Email used for purchase</label>
-          <input id="manual-email" class="form-input" type="email" autocomplete="off"
-                 onkeydown="if(event.key==='Enter')submitManual()" />
-        </div>
-        <button class="btn-primary" id="manual-btn" onclick="submitManual()">✅ <span data-i18n="confirm">Confirm & Get Account</span></button>
-      </div>
-
-      <!-- GGSEL form -->
-      <div id="form-ggsel" style="display:none">
-        <div class="form-group">
-          <label class="form-label" for="ggsel-orderid" data-i18n="ggselOrderId">Order ID (from GGSEL)</label>
-          <input id="ggsel-orderid" class="form-input" type="text" autocomplete="off" placeholder="e.g. 12345678"
-                 onkeydown="if(event.key==='Enter')document.getElementById('ggsel-email').focus()" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="ggsel-email" data-i18n="emailPurchase">Email used for purchase</label>
-          <input id="ggsel-email" class="form-input" type="email" autocomplete="off"
-                 onkeydown="if(event.key==='Enter')submitGgsel()" />
-        </div>
-        <button class="btn-primary" id="ggsel-btn" onclick="submitGgsel()">✅ <span data-i18n="confirm">Confirm & Get Account</span></button>
-      </div>
-
+      <button class="btn-primary" id="manual-btn" onclick="submitManual()">✅ <span data-i18n="confirm">Confirm & Get Account</span></button>
       <div style="margin-top:20px;text-align:center;font-size:13px;color:var(--muted)">
         <span data-i18n="alreadyBought">Already purchased?</span>
         <a href="lookup.html" style="color:var(--red2);text-decoration:none"> <span data-i18n="lookupLink2">Look up your order →</span></a>
@@ -157,39 +133,36 @@
   </div>
 
 
-  <div class="footer"><p>© 2025 CapCut Delivery System · Powered by Plati.market & GGSEL.net</p></div>
+  <div class="footer"><p>© 2025 CapCut Delivery System · Powered by Plati.market</p></div>
 </div>
 
 <script>
 const STRINGS = {
   en: {
     auto247:'Automatic delivery system • 24/7', processing:'Processing your order...', pleaseWait:'Please wait a moment',
-    step1:'Verifying unique code', step2:'Checking order (Plati / GGSEL)', step3:'Allocating account', step4:'Completing delivery',
+    step1:'Verifying unique code', step2:'Checking Plati order', step3:'Allocating account', step4:'Completing delivery',
     deliverySuccess:'✓ Delivery successful', emailLabel:'📧 Email Address', passwordLabel:'🔑 Password',
     copy:'Copy', copied:'Copied!', warning:'Please change your password immediately after login to secure your account. Save this info — you can look it up anytime with your unique code and email.',
     labelCode:'Unique Code', labelTime:'Date & Time', labelProduct:'Product', labelOrderId:'Order ID',
     lookupLink:'Look up order', errorTitle:'Verification Failed', tryManual:'If you paid successfully, enter your code manually:',
     uniqueCode:'Unique Code', emailPurchase:'Email used for purchase', retry:'Retry',
-    manualTitle:'Get Your Account', manualDesc:'After payment on <strong>Plati.market</strong> or <strong>GGSEL.net</strong>, enter your <strong>Unique Code</strong> and <strong>purchase email</strong> to receive your CapCut Pro account.',
+    manualTitle:'Get Your Account', manualDesc:'After payment on Plati.market, enter your <strong>Unique Code</strong> and <strong>purchase email</strong> to receive your CapCut Pro account.',
     confirm:'Confirm & Get Account', alreadyBought:'Already purchased?', lookupLink2:'Look up your order →', needHelp:'Need help?',
     alreadyDelivered:'📦 Order delivered previously',
-    errEmpty:'Please enter all required fields.', errConnect:'Cannot connect to server. Check your internet connection.',
-    ggselOrderId:'Order ID (from GGSEL)',
-    manualDesc:'After payment on <strong>Plati.market</strong> or <strong>GGSEL.net</strong>, select your platform and enter your details to receive your CapCut Pro account.',
+    errEmpty:'Please enter your unique code and email.', errConnect:'Cannot connect to server. Check your internet connection.',
   },
   ru: {
     auto247:'Система автодоставки • 24/7', processing:'Обработка заказа...', pleaseWait:'Пожалуйста, подождите',
-    step1:'Проверка уникального кода', step2:'Проверка заказа (Plati / GGSEL)', step3:'Выделение аккаунта', step4:'Завершение доставки',
+    step1:'Проверка уникального кода', step2:'Проверка заказа Plati', step3:'Выделение аккаунта', step4:'Завершение доставки',
     deliverySuccess:'✓ Доставка выполнена', emailLabel:'📧 Адрес Email', passwordLabel:'🔑 Пароль',
     copy:'Копировать', copied:'Скопировано!', warning:'Пожалуйста, немедленно смените пароль после входа для безопасности аккаунта. Сохраните эти данные — вы сможете получить их снова с уникальным кодом и email.',
     labelCode:'Уникальный код', labelTime:'Дата и время', labelProduct:'Продукт', labelOrderId:'ID заказа',
     lookupLink:'Найти заказ', errorTitle:'Ошибка проверки', tryManual:'Если оплата прошла, введите код вручную:',
     uniqueCode:'Уникальный код', emailPurchase:'Email, использованный при покупке', retry:'Повторить',
-    manualTitle:'Получите свой аккаунт', manualDesc:'После оплаты на <strong>Plati.market</strong> или <strong>GGSEL.net</strong> выберите платформу и введите данные для получения аккаунта CapCut Pro.',
+    manualTitle:'Получите свой аккаунт', manualDesc:'После оплаты на Plati.market введите свой <strong>уникальный код</strong> и <strong>email покупки</strong> для получения аккаунта CapCut Pro.',
     confirm:'Подтвердить и получить аккаунт', alreadyBought:'Уже покупали?', lookupLink2:'Найти свой заказ →', needHelp:'Нужна помощь?',
     alreadyDelivered:'📦 Заказ был доставлен ранее',
-    errEmpty:'Пожалуйста, заполните все обязательные поля.', errConnect:'Не удалось подключиться к серверу.',
-    ggselOrderId:'ID заказа (из GGSEL)',
+    errEmpty:'Пожалуйста, введите уникальный код и email.', errConnect:'Не удалось подключиться к серверу.',
   }
 };
 
@@ -210,14 +183,6 @@ const PLAN_META = {
   '1m':{ cls:'plan-1m', icon:'✨', en:'1 Month',  ru:'1 месяц'  },
   '6m':{ cls:'plan-6m', icon:'👑', en:'6 Months', ru:'6 месяцев'},
 };
-
-/* ── Tab switching (Plati / GGSEL) ── */
-function switchTab(tab) {
-  document.getElementById('form-plati').style.display = tab === 'plati' ? 'block' : 'none';
-  document.getElementById('form-ggsel').style.display = tab === 'ggsel' ? 'block' : 'none';
-  document.getElementById('tab-plati').classList.toggle('active', tab === 'plati');
-  document.getElementById('tab-ggsel').classList.toggle('active', tab === 'ggsel');
-}
 
 function show(id){ ['state-loading','state-success','state-error','state-manual'].forEach(s=>document.getElementById(s).style.display='none'); document.getElementById(id).style.display='block'; }
 function setStep(n){ for(let i=1;i<=4;i++){const el=document.getElementById('step-'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');if(i===n)el.classList.add('active');} }
@@ -272,21 +237,6 @@ async function submitManual(){
   btn.disabled=true;
   await verifyCode(code, email);
   btn.disabled=false;
-}
-
-async function submitGgsel(){
-  const orderId = document.getElementById('ggsel-orderid').value.trim();
-  const email   = document.getElementById('ggsel-email').value.trim();
-  if(!orderId||!email){ alert(STRINGS[lang].errEmpty); return; }
-  const btn = document.getElementById('ggsel-btn');
-  btn.disabled=true;
-  show('state-loading');
-  setStep(1); await sleep(500);
-  setStep(2); await sleep(600);
-  setStep(3); await sleep(400);
-  setStep(4);
-  // Redirect to delivery.html with GGSEL params
-  window.location.href = `delivery.html?platform=ggsel&orderid=${encodeURIComponent(orderId)}&email=${encodeURIComponent(email)}`;
 }
 
 async function submitErr(){

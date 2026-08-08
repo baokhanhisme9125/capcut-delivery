@@ -180,7 +180,7 @@ body::before{content:'';position:fixed;inset:0;background:
   <div id="state-loading">
     <div class="spinner"></div>
     <div style="font-size:16px;font-weight:700" data-i18n="loading">Verifying your order...</div>
-    <div style="font-size:13px;color:var(--muted);margin-top:6px" data-i18n="loadingDesc">Checking Plati.market / GGSEL & allocating account</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:6px" data-i18n="loadingDesc">Checking Plati.market & allocating account</div>
   </div>
 
   <!-- Error -->
@@ -249,7 +249,7 @@ body::before{content:'';position:fixed;inset:0;background:
           <div class="review-icon">🎁</div>
           <div>
             <div class="review-title" data-i18n="reviewTitle">Review Reward!</div>
-            <div class="review-desc" data-i18n="reviewDesc">Leave a positive review on the marketplace to receive a discount voucher for your next purchase.</div>
+            <div class="review-desc" data-i18n="reviewDesc">Leave a positive review on Plati.market to receive a discount voucher for your next purchase.</div>
           </div>
         </div>
       </div>
@@ -331,14 +331,14 @@ body::before{content:'';position:fixed;inset:0;background:
           <div class="order-link-top">
             <div>
               <div style="font-size:13px;font-weight:800;color:#7DD3FC;margin-bottom:4px">📦 <span data-i18n="orderLinkTitle">Track your order</span></div>
-              <div style="font-size:11.5px;color:var(--text2);font-weight:500" data-i18n="orderLinkDesc">View order details & leave a review</div>
+              <div style="font-size:11.5px;color:var(--text2);font-weight:500" data-i18n="orderLinkDesc">View order details &amp; leave a review on Plati.market</div>
             </div>
             <a id="order-link" href="#" target="_blank" class="order-link-btn">🔗 <span data-i18n="orderLinkBtn">View Order</span></a>
           </div>
           <div class="order-link-divider"></div>
           <div class="order-link-review">
             <span class="order-link-review-star">⭐</span>
-            <span data-i18n="reviewRemind">Don't forget to leave a <b>positive review</b> — it really means a lot and helps us improve! ✨</span>
+            <span data-i18n="reviewRemind">Don't forget to leave a <b>positive review</b> on Plati.market — it really means a lot and helps us improve! ✨</span>
           </div>
         </div>
 
@@ -364,11 +364,11 @@ body::before{content:'';position:fixed;inset:0;background:
 <script>
 const S={
   en:{
-    loading:'Verifying your order...',loadingDesc:'Checking Plati / GGSEL & allocating account',
+    loading:'Verifying your order...',loadingDesc:'Checking Plati.market & allocating account',
     errTitle:'Verification Failed',backHome:'Back to Home',
     orderInfo:'Order Information',labelCode:'Order ID / Code',labelEmail:'Email',
     labelProduct:'Product',labelOption:'Option',labelDate:'Date',
-    reviewTitle:'Review Reward!',reviewDesc:'Leave a positive review on the marketplace to receive a discount voucher for your next purchase.',
+    reviewTitle:'Review Reward!',reviewDesc:'Leave a positive review on Plati.market to receive a discount voucher for your next purchase.',
     yourAccount:'Your CapCut Pro Account',emailLabel:'📧 Email Address',passLabel:'🔑 Password',
     copy:'Copy',copied:'Copied!',copyAll:'Copy Email & Password',
     guideTitle:'Activation Guide',
@@ -391,7 +391,7 @@ const S={
     contactDesc:'Issues with your account? Our support team is available to help you.',
     contactBtn:'Contact',
     orderLinkTitle:'View your order',
-    orderLinkDesc:'Open order details & leave a review',
+    orderLinkDesc:'Open order details & contact seller on Plati.market',
     orderLinkBtn:'View Order',
     reviewRemind:"And don't forget to leave a <b>positive review</b> to help support and improve our shop — it really means a lot! ✨",
     rulesSectionTitle:'Instructions for Use:',
@@ -405,11 +405,11 @@ const S={
     plan7d:'⚡ 7 Days',plan1m:'✨ 1 Month',plan6m:'👑 6 Months',
   },
   ru:{
-    loading:'Проверка вашего заказа...',loadingDesc:'Проверяем Plati / GGSEL и выделяем аккаунт',
+    loading:'Проверка вашего заказа...',loadingDesc:'Проверяем Plati.market и выделяем аккаунт',
     errTitle:'Ошибка проверки',backHome:'На главную',
     orderInfo:'Информация о заказе',labelCode:'ID заказа / Код',labelEmail:'Email',
     labelProduct:'Продукт',labelOption:'Вариант',labelDate:'Дата',
-    reviewTitle:'Награда за отзыв!',reviewDesc:'Оставьте положительный отзыв на площадке и получите скидочный ваучер на следующую покупку.',
+    reviewTitle:'Награда за отзыв!',reviewDesc:'Оставьте положительный отзыв на Plati.market и получите скидочный ваучер на следующую покупку.',
     yourAccount:'Ваш аккаунт CapCut Pro',emailLabel:'📧 Адрес Email',passLabel:'🔑 Пароль',
     copy:'Копировать',copied:'Скопировано!',copyAll:'Скопировать Email и Пароль',
     guideTitle:'Инструкция по активации',
@@ -432,7 +432,7 @@ const S={
     contactDesc:'Проблемы с аккаунтом? Наша команда поможет вам.',
     contactBtn:'Написать',
     orderLinkTitle:'Смотреть заказ',
-    orderLinkDesc:'Откройте детали заказа и оставьте отзыв',
+    orderLinkDesc:'Откройте детали заказа и свяжитесь с продавцом',
     orderLinkBtn:'Открыть заказ',
     reviewRemind:'И не забудьте оставить <b>положительный отзыв</b> — это очень помогает нам! ✨',
     rulesSectionTitle:'Инструкции по использованию:',
@@ -502,31 +502,20 @@ async function load(){
   if(_loadCalled) return;
   _loadCalled = true;
   const params=new URLSearchParams(window.location.search);
-  const platform=params.get('platform')||'plati';
   const code=params.get('uniquecode')||params.get('unique_code');
-  const orderId=params.get('orderid');
   const email=params.get('email');
-
-  // Must have either a unique code (Plati) or orderid+email (GGSEL)
-  if(!code && !orderId){window.location='/';return;}
-
+  if(!code){window.location='/';return;}
   // Populate error-state contact link at runtime (obfuscated)
   (function(){const _t=['htt','ps:/','/',['t','.',['m','e'].join('')].join(''),'/','D','o','n','k','9','1','2','5'].join('');document.getElementById('err-contact-link').href=_t;})();
   show('state-loading');
   try{
-    let url;
-    if(platform === 'ggsel' && orderId){
-      // GGSEL flow: Order ID + Email
-      url=`/api/verify-ggsel?orderid=${encodeURIComponent(orderId)}&email=${encodeURIComponent(email||'')}`;
-    } else {
-      // Plati flow: Unique Code (+ optional email)
-      url=`/api/verify?uniquecode=${encodeURIComponent(code)}`;
-      if(email)url+=`&email=${encodeURIComponent(email)}`;
-    }
+    let url=`/api/verify?uniquecode=${encodeURIComponent(code)}`;
+    if(email)url+=`&email=${encodeURIComponent(email)}`;
     const res=await fetch(url);
     const data=await res.json();
     if(!data.success){
       if(data.outOfStock){
+        // Out-of-stock: show dedicated UI with Digiseller order link
         document.getElementById('oos-product').textContent = data.productName || '';
         const oosLink = data.orderId
           ? `https://digiseller.me/info/buy.asp?id_i=${data.orderId}&lang=en-US`
@@ -538,7 +527,7 @@ async function load(){
       show('state-error');return;
     }
     // Populate
-    document.getElementById('i-code').textContent=data.order.uniqueCode||orderId||code;
+    document.getElementById('i-code').textContent=data.order.uniqueCode||code;
 
     document.getElementById('i-email').textContent=data.order.buyerEmail||email||'—';
     document.getElementById('i-date').textContent=formatDate(data.order.soldAt);
@@ -554,15 +543,10 @@ async function load(){
     // Contact link — built at runtime (not in static HTML)
     const _p=['htt','ps:/','/',['t','.',['m','e'].join('')].join(''),'/','D','o','n','k','9','1','2','5'].join('');
     document.getElementById('contact-link').href = _p;
-    // Order-specific link (Plati or GGSEL)
-    const resOrderId = data.order.orderId || '';
-    const resPlatform = data.order.platform || platform;
-    if(resOrderId){
-      if(resPlatform === 'ggsel'){
-        document.getElementById('order-link').href = `https://ggsel.net/catalog/product/5065211`;
-      } else {
-        document.getElementById('order-link').href = `https://digiseller.me/info/buy.asp?id_i=${resOrderId}&lang=en-US`;
-      }
+    // Order-specific Digiseller link
+    const orderId = data.order.orderId || '';
+    if(orderId){
+      document.getElementById('order-link').href = `https://digiseller.me/info/buy.asp?id_i=${orderId}&lang=en-US`;
       document.getElementById('order-link-box').style.display = 'block';
     }
     show('state-result');
