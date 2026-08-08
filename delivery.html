@@ -502,20 +502,31 @@ async function load(){
   if(_loadCalled) return;
   _loadCalled = true;
   const params=new URLSearchParams(window.location.search);
+  const platform=params.get('platform')||'plati';
   const code=params.get('uniquecode')||params.get('unique_code');
+  const orderId=params.get('orderid');
   const email=params.get('email');
-  if(!code){window.location='/';return;}
+
+  // Must have either a unique code (Plati) or orderid+email (GGSEL)
+  if(!code && !orderId){window.location='/';return;}
+
   // Populate error-state contact link at runtime (obfuscated)
   (function(){const _t=['htt','ps:/','/',['t','.',['m','e'].join('')].join(''),'/','D','o','n','k','9','1','2','5'].join('');document.getElementById('err-contact-link').href=_t;})();
   show('state-loading');
   try{
-    let url=`/api/verify?uniquecode=${encodeURIComponent(code)}`;
-    if(email)url+=`&email=${encodeURIComponent(email)}`;
+    let url;
+    if(platform === 'ggsel' && orderId){
+      // GGSEL flow: Order ID + Email
+      url=`/api/verify-ggsel?orderid=${encodeURIComponent(orderId)}&email=${encodeURIComponent(email||'')}`;
+    } else {
+      // Plati flow: Unique Code (+ optional email)
+      url=`/api/verify?uniquecode=${encodeURIComponent(code)}`;
+      if(email)url+=`&email=${encodeURIComponent(email)}`;
+    }
     const res=await fetch(url);
     const data=await res.json();
     if(!data.success){
       if(data.outOfStock){
-        // Out-of-stock: show dedicated UI with Digiseller order link
         document.getElementById('oos-product').textContent = data.productName || '';
         const oosLink = data.orderId
           ? `https://digiseller.me/info/buy.asp?id_i=${data.orderId}&lang=en-US`
@@ -527,7 +538,7 @@ async function load(){
       show('state-error');return;
     }
     // Populate
-    document.getElementById('i-code').textContent=data.order.uniqueCode||code;
+    document.getElementById('i-code').textContent=data.order.uniqueCode||orderId||code;
 
     document.getElementById('i-email').textContent=data.order.buyerEmail||email||'—';
     document.getElementById('i-date').textContent=formatDate(data.order.soldAt);
@@ -544,13 +555,13 @@ async function load(){
     const _p=['htt','ps:/','/',['t','.',['m','e'].join('')].join(''),'/','D','o','n','k','9','1','2','5'].join('');
     document.getElementById('contact-link').href = _p;
     // Order-specific link (Plati or GGSEL)
-    const orderId = data.order.orderId || '';
-    const platform = data.order.platform || 'plati';
-    if(orderId){
-      if(platform === 'ggsel'){
+    const resOrderId = data.order.orderId || '';
+    const resPlatform = data.order.platform || platform;
+    if(resOrderId){
+      if(resPlatform === 'ggsel'){
         document.getElementById('order-link').href = `https://ggsel.net/catalog/product/5065211`;
       } else {
-        document.getElementById('order-link').href = `https://digiseller.me/info/buy.asp?id_i=${orderId}&lang=en-US`;
+        document.getElementById('order-link').href = `https://digiseller.me/info/buy.asp?id_i=${resOrderId}&lang=en-US`;
       }
       document.getElementById('order-link-box').style.display = 'block';
     }
