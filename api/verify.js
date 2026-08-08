@@ -1,22 +1,38 @@
 /**
  * /api/verify?uniquecode=XXX&email=YYY
  *
- * 1. Check Orders sheet (idempotency)
- * 2. Verify via Digiseller API (api.digiseller.com — no DDoS-Guard)
- * 3. Auto-detect product variant (7d / 1m / 6m) from purchase options
+ * Supports BOTH platforms:
+ *   - Plati.market (Digiseller) — unique code = 16-char hex
+ *   - GGSEL.net                 — unique code = 36-char UUID
+ *
+ * Flow:
+ * 1. Auto-detect platform from code format
+ * 2. Check Orders sheet (idempotency)
+ * 3. Verify via platform API
  * 4. Deliver account from correct sheet + save to Orders
  *
  * Race-condition protection:
  *   - In-memory lock per unique code (prevents concurrent same-instance hits)
  *   - Double-check findOrderByCode before committing (prevents cross-instance race)
  */
-const { verifyUniqueCode } = require('../lib/plati');
+const { verifyUniqueCode: verifyPlati } = require('../lib/plati');
+const { verifyUniqueCode: verifyGgsel, confirmDelivery: confirmGgselDelivery } = require('../lib/ggsel');
 const {
   getNextAvailableAccount,
   deleteAccountRow,
   saveOrder,
   findOrderByCode,
 } = require('../lib/sheets');
+
+/* ── Platform detection ─────────────────────────────────────────────── */
+function detectPlatform(code) {
+  // GGSEL unique codes are UUIDs: 8-4-4-4-12 hex with hyphens (36 chars)
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code)) {
+    return 'ggsel';
+  }
+  // Plati unique codes are 16-char hex (no hyphens)
+  return 'plati';
+}
 
 /* ── Concurrency guard (per serverless instance) ────────────────────── */
 const _pending = new Map();                    // code → timestamp
@@ -42,6 +58,7 @@ function alreadyDeliveredResponse(res, order) {
       productType: order.productType,
       productName: order.productName,
       orderId:     order.orderId,
+      platform:    order.platform || 'plati',
     },
   });
 }
@@ -58,12 +75,13 @@ module.exports = async (req, res) => {
     return res.status(400).json({ success: false, error: 'Missing or invalid unique code.' });
   }
 
+  const platform = detectPlatform(code);
+  console.log(`[verify] code=${code.slice(0,8)}... platform=${platform}`);
+
   try {
     /* ── 0. Concurrency guard (same Vercel instance) ─────────────── */
     cleanPending();
     if (_pending.has(code)) {
-      // Another request for the same code is already in-flight on this instance.
-      // Wait briefly then return whatever result it saved.
       await new Promise(r => setTimeout(r, 3000));
       const existing = await findOrderByCode(code);
       if (existing) return alreadyDeliveredResponse(res, existing);
@@ -88,16 +106,20 @@ module.exports = async (req, res) => {
       return alreadyDeliveredResponse(res, existing);
     }
 
-    /* ── 2. Verify via Digiseller API (auto-detects variant) ─────────── */
-    let platiInfo;
+    /* ── 2. Verify via platform API ──────────────────────────────────── */
+    let verifyInfo;
     try {
-      platiInfo = await verifyUniqueCode(code);
+      if (platform === 'ggsel') {
+        verifyInfo = await verifyGgsel(code);
+      } else {
+        verifyInfo = await verifyPlati(code);
+      }
     } catch (err) {
       return res.status(400).json({ success: false, error: err.message });
     }
 
     /* ── 3. Optional email check ─────────────────────────────────────── */
-    const buyerEmail = (platiInfo.buyer || '').toLowerCase();
+    const buyerEmail = (verifyInfo.buyer || '').toLowerCase();
     if (emailParam && buyerEmail && buyerEmail !== 'unknown') {
       if (emailParam !== buyerEmail) {
         return res.status(403).json({
@@ -107,7 +129,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    const { productType, productName, sheetName } = platiInfo;
+    const { productType, productName, sheetName } = verifyInfo;
 
     /* ── 4. Get account from correct product sheet ───────────────────── */
     const account = await getNextAvailableAccount(sheetName);
@@ -116,17 +138,14 @@ module.exports = async (req, res) => {
         success: false,
         outOfStock: true,
         productName,
-        orderId: platiInfo.orderId || null,
+        orderId: verifyInfo.orderId || null,
         error: `Out of stock for ${productName}. Please contact support.`,
       });
     }
 
     /* ── 4.5. Race-condition guard: re-check before committing ───────── */
-    /*  Between step 1 and here, another Vercel instance may have already
-        delivered for this code. Check again to prevent duplicate delivery. */
     const raceCheck = await findOrderByCode(code);
     if (raceCheck) {
-      // Another instance already delivered — do NOT consume this account
       console.log(`[verify] Race-condition caught for code=${code}. Skipping duplicate delivery.`);
       return alreadyDeliveredResponse(res, raceCheck);
     }
@@ -135,13 +154,22 @@ module.exports = async (req, res) => {
     await deleteAccountRow(sheetName, account.rowIndex);
     await saveOrder({
       uniqueCode:      code,
-      buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
+      buyerEmail:      verifyInfo.buyer || emailParam || 'unknown',
       accountEmail:    account.email,
       accountPassword: account.password,
-      orderId:         platiInfo.orderId,
+      orderId:         verifyInfo.orderId,
       productType,
       productName,
+      platform,
     });
+
+    /* ── 5.5. Confirm delivery to GGSEL (if applicable) ──────────────── */
+    if (platform === 'ggsel') {
+      // Fire-and-forget: don't block the response
+      confirmGgselDelivery(code).catch(err => {
+        console.error('[verify] GGSEL delivery confirmation failed:', err.message);
+      });
+    }
 
     /* ── 6. Return ───────────────────────────────────────────────────── */
     return res.status(200).json({
@@ -150,11 +178,12 @@ module.exports = async (req, res) => {
       account: { email: account.email, password: account.password },
       order: {
         uniqueCode:  code,
-        buyerEmail:  platiInfo.buyer || emailParam || 'unknown',
+        buyerEmail:  verifyInfo.buyer || emailParam || 'unknown',
         soldAt:      new Date().toISOString(),
         productType,
         productName,
-        orderId:     platiInfo.orderId,
+        orderId:     verifyInfo.orderId,
+        platform,
       },
     });
 
@@ -162,7 +191,6 @@ module.exports = async (req, res) => {
     console.error('[verify] Unexpected error:', err.message);
     return res.status(500).json({ success: false, error: 'Server error. Please try again.' });
   } finally {
-    /* Always release the lock so future requests for this code can proceed */
     _pending.delete(code);
   }
 };
