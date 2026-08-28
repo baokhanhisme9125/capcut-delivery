@@ -22,6 +22,15 @@ const {
 const _pending = new Map();                    // code → timestamp
 const PENDING_TTL = 30_000;                    // auto-expire stale locks after 30s
 
+/* ── Global delivery mutex ── */
+let _deliveryLock = Promise.resolve();
+function acquireDeliveryLock() {
+  let release;
+  const prev = _deliveryLock;
+  _deliveryLock = new Promise(r => { release = r; });
+  return prev.then(() => release);
+}
+
 function cleanPending() {
   const now = Date.now();
   for (const [k, t] of _pending) {
@@ -109,39 +118,40 @@ module.exports = async (req, res) => {
 
     const { productType, productName, sheetName } = platiInfo;
 
-    /* ── 4. Get account from correct product sheet ───────────────────── */
-    const account = await getNextAvailableAccount(sheetName);
-    if (!account) {
-      return res.status(503).json({
-        success: false,
-        outOfStock: true,
+    /* ── ATOMIC: lock → get account → delete → save → release ── */
+    const releaseLock = await acquireDeliveryLock();
+    let account;
+    try {
+      // Re-check idempotency inside lock
+      const raceCheck = await findOrderByCode(code);
+      if (raceCheck) {
+        releaseLock();
+        console.log(`[verify] Race-condition caught for code=${code}. Skipping duplicate delivery.`);
+        return alreadyDeliveredResponse(res, raceCheck);
+      }
+
+      account = await getNextAvailableAccount(sheetName);
+      if (!account) {
+        releaseLock();
+        return res.status(503).json({
+          success: false, outOfStock: true, productName,
+          orderId: platiInfo.orderId || null,
+          error: `Out of stock for ${productName}. Please contact support.`,
+        });
+      }
+
+      await deleteAccountRow(sheetName, account.rowIndex);
+      await saveOrder({
+        uniqueCode:      code,
+        buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
+        accountEmail:    account.email,
+        accountPassword: account.password,
+        orderId:         platiInfo.orderId,
+        productType,
         productName,
-        orderId: platiInfo.orderId || null,
-        error: `Out of stock for ${productName}. Please contact support.`,
       });
-    }
-
-    /* ── 4.5. Race-condition guard: re-check before committing ───────── */
-    /*  Between step 1 and here, another Vercel instance may have already
-        delivered for this code. Check again to prevent duplicate delivery. */
-    const raceCheck = await findOrderByCode(code);
-    if (raceCheck) {
-      // Another instance already delivered — do NOT consume this account
-      console.log(`[verify] Race-condition caught for code=${code}. Skipping duplicate delivery.`);
-      return alreadyDeliveredResponse(res, raceCheck);
-    }
-
-    /* ── 5. Delete from sheet + save to Orders ───────────────────────── */
-    await deleteAccountRow(sheetName, account.rowIndex);
-    await saveOrder({
-      uniqueCode:      code,
-      buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
-      accountEmail:    account.email,
-      accountPassword: account.password,
-      orderId:         platiInfo.orderId,
-      productType,
-      productName,
-    });
+      releaseLock();
+    } catch (lockErr) { releaseLock(); throw lockErr; }
 
     /* ── 6. Return ───────────────────────────────────────────────────── */
     return res.status(200).json({
