@@ -200,8 +200,16 @@ body::before{content:'';position:fixed;inset:0;background:
     <div style="font-size:52px;margin-bottom:16px">📦</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--amber)" id="oos-title" data-i18n="oosTitle">Temporarily Out of Stock</div>
     <div style="font-size:13.5px;color:var(--muted);margin-bottom:8px" id="oos-product"></div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.6" data-i18n="oosDesc">
-      Your order is confirmed but accounts are being restocked. You will receive your account shortly.
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6" data-i18n="oosDesc">
+      Your order is saved! We are restocking as fast as possible. Please refresh this page (F5) periodically — your account will appear automatically once available.
+    </div>
+    <!-- Auto-refresh countdown -->
+    <div style="background:rgba(255,183,77,.08);border:1px solid rgba(255,183,77,.2);border-radius:14px;padding:16px 20px;max-width:380px;margin:0 auto 20px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:24px;flex-shrink:0">🔄</div>
+      <div style="text-align:left">
+        <div style="font-size:13px;font-weight:700;color:var(--amber)" data-i18n="oosRefreshTitle">Auto-refreshing...</div>
+        <div style="font-size:11.5px;color:var(--text2);margin-top:2px"><span data-i18n="oosRefreshDesc">This page will refresh in</span> <b id="oos-countdown">30</b>s</div>
+      </div>
     </div>
     <div class="order-link-box" id="oos-track-box" style="display:none;max-width:440px;margin:0 auto 20px;text-align:left">
       <div class="order-link-top">
@@ -406,6 +414,10 @@ const S={
     rnItem3:'If you suddenly get logged out and see <b>"Password incorrect"</b> or <b>"Too many login attempts"</b> — account used on more than 2 devices. <b>"Maximum number of attempts reached"</b> = <b>No warranty.</b>',
     checkAnother:'Check Another',secure:'Secure SSL Verification via Plati.market APIs',
     verified:'● Verified Paid',alreadyDelivered:'Previously Delivered',
+    oosTitle:'Temporarily Out of Stock',
+    oosDesc:'Your order is saved! We are restocking as fast as possible. Please refresh this page (F5) periodically — your account will appear automatically once available.',
+    oosRefreshTitle:'Auto-refreshing...',
+    oosRefreshDesc:'This page will refresh in',
     plan7d:'⚡ 7 Days',plan1m:'✨ 1 Month',plan6m:'👑 6 Months',
   },
   ru:{
@@ -447,6 +459,10 @@ const S={
     rnItem3:'Если вас выбросило и появилось <b>«неверный пароль»</b> или <b>«слишком много попыток»</b> — аккаунт используется на 3+ устройствах. <b>«Максимальное количество попыток»</b> = <b>Гарантия не действует.</b>',
     checkAnother:'Проверить другой заказ',secure:'Безопасная SSL-проверка через API Plati.market',
     verified:'● Оплата подтверждена',alreadyDelivered:'Ранее доставлено',
+    oosTitle:'Временно нет в наличии',
+    oosDesc:'Ваш заказ сохранён! Мы пополняем запасы как можно быстрее. Обновляйте эту страницу (F5) — ваш аккаунт появится автоматически.',
+    oosRefreshTitle:'Автообновление...',
+    oosRefreshDesc:'Страница обновится через',
     plan7d:'⚡ 7 дней',plan1m:'✨ 1 месяц',plan6m:'👑 6 месяцев',
   }
 
@@ -502,6 +518,21 @@ function launchConfetti(){
 }
 
 let _loadCalled = false;
+let _oosTimer = null;
+function startOosCountdown(){
+  let sec=30;
+  const el=document.getElementById('oos-countdown');
+  if(_oosTimer) clearInterval(_oosTimer);
+  _oosTimer=setInterval(()=>{
+    sec--;
+    if(el) el.textContent=sec;
+    if(sec<=0){
+      clearInterval(_oosTimer);
+      _loadCalled=false;
+      load();
+    }
+  },1000);
+}
 async function load(){
   if(_loadCalled) return;
   _loadCalled = true;
@@ -525,7 +556,9 @@ async function load(){
           document.getElementById('oos-track-link').href = `https://digiseller.me/info/buy.asp?id_i=${oid}&lang=en-US`;
           document.getElementById('oos-track-box').style.display = 'block';
         }
-        show('state-oos'); return;
+        show('state-oos');
+        startOosCountdown();
+        return;
       }
       document.getElementById('err-msg').textContent=data.error||'Unknown error';
       show('state-error');return;

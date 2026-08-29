@@ -15,6 +15,7 @@ const {
   getNextAvailableAccount,
   deleteAccountRow,
   saveOrder,
+  savePendingOrder,
   findOrderByCode,
 } = require('../lib/sheets');
 
@@ -83,7 +84,7 @@ module.exports = async (req, res) => {
     }
     _pending.set(code, Date.now());
 
-    /* ── 1. Idempotency: already delivered? ─────────────────────────── */
+    /* ── 1. Idempotency: already delivered? ───────────────────────────── */
     const existing = await findOrderByCode(code);
     if (existing) {
       if (emailParam && existing.buyerEmail && existing.buyerEmail !== 'unknown') {
@@ -93,6 +94,13 @@ module.exports = async (req, res) => {
             error: 'Email does not match purchase email. / Email не совпадает.',
           });
         }
+      }
+      if (existing.isPending) {
+        return res.status(503).json({
+          success: false, outOfStock: true, isPending: true,
+          productName: existing.productName, orderId: existing.orderId || null,
+          error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
+        });
       }
       return alreadyDeliveredResponse(res, existing);
     }
@@ -124,19 +132,33 @@ module.exports = async (req, res) => {
     try {
       // Re-check idempotency inside lock
       const raceCheck = await findOrderByCode(code);
-      if (raceCheck) {
+      if (raceCheck && !raceCheck.isPending) {
         releaseLock();
-        console.log(`[verify] Race-condition caught for code=${code}. Skipping duplicate delivery.`);
         return alreadyDeliveredResponse(res, raceCheck);
+      }
+      if (raceCheck && raceCheck.isPending) {
+        releaseLock();
+        return res.status(503).json({
+          success: false, outOfStock: true, isPending: true,
+          productName: raceCheck.productName, orderId: raceCheck.orderId || null,
+          error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
+        });
       }
 
       account = await getNextAvailableAccount(sheetName);
       if (!account) {
+        await savePendingOrder({
+          uniqueCode: code,
+          buyerEmail: platiInfo.buyer || emailParam || 'unknown',
+          orderId: platiInfo.orderId,
+          productType, productName,
+        });
         releaseLock();
+        console.log(`[verify] OOS — saved pending order for code=${code}`);
         return res.status(503).json({
-          success: false, outOfStock: true, productName,
-          orderId: platiInfo.orderId || null,
-          error: `Out of stock for ${productName}. Please contact support.`,
+          success: false, outOfStock: true, isPending: true,
+          productName, orderId: platiInfo.orderId || null,
+          error: `Out of stock for ${productName}. Your order is saved — please refresh (F5) to receive your account.`,
         });
       }
 
