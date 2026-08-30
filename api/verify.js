@@ -17,7 +17,6 @@ const {
   saveOrder,
   savePendingOrder,
   findOrderByCode,
-  findRecentOrderByEmail,
 } = require('../lib/sheets');
 
 /* ── Concurrency guard (per serverless instance) ────────────────────── */
@@ -125,22 +124,6 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Cross-platform dedup: same buyer email within 10 min?
-    const dedupEmail = emailParam || buyerEmail;
-    if (dedupEmail && dedupEmail !== 'unknown') {
-      const recentByEmail = await findRecentOrderByEmail(dedupEmail);
-      if (recentByEmail && !recentByEmail.isPending) {
-        console.log(`[capcut-verify] Cross-platform dedup: email=${dedupEmail} already delivered via ${recentByEmail.uniqueCode}`);
-        return alreadyDeliveredResponse(res, recentByEmail);
-      }
-      if (recentByEmail && recentByEmail.isPending) {
-        return res.status(503).json({
-          success: false, outOfStock: true, isPending: true,
-          productName: recentByEmail.productName, orderId: recentByEmail.orderId || null,
-          error: 'Out of stock — your order is saved. Please refresh (F5) periodically.',
-        });
-      }
-    }
 
     const { productType, productName, sheetName } = platiInfo;
 
