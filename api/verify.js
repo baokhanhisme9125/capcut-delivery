@@ -76,7 +76,16 @@ module.exports = async (req, res) => {
       // Wait briefly then return whatever result it saved.
       await new Promise(r => setTimeout(r, 3000));
       const existing = await findOrderByCode(code);
-      if (existing) return alreadyDeliveredResponse(res, existing);
+      if (existing) {
+        if (existing.isPending) {
+          return res.status(503).json({
+            success: false, outOfStock: true, isPending: true,
+            productName: existing.productName, orderId: existing.orderId || null,
+            error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
+          });
+        }
+        return alreadyDeliveredResponse(res, existing);
+      }
       return res.status(429).json({
         success: false,
         error: 'This order is being processed. Please wait a moment and refresh.',
