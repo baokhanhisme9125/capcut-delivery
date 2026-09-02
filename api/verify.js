@@ -155,7 +155,7 @@ module.exports = async (req, res) => {
         });
       }
 
-      account = await getNextAvailableAccount(sheetName);
+      account = await getNextAvailableAccount(sheetName, code);
       if (!account) {
         await savePendingOrder({
           uniqueCode: code,

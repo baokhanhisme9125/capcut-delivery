@@ -98,7 +98,7 @@ module.exports = async (req, res) => {
   const { productType, productName, sheetName } = detectProductFromGoods(goods_name, amount);
 
   // ── 4. Get account from product sheet ───────────────────────────────
-  const account = await getNextAvailableAccount(sheetName);
+  const account = await getNextAvailableAccount(sheetName, unique_code);
   if (!account) {
     return res.status(503).json({
       success: false,
