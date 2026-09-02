@@ -116,7 +116,9 @@
       <div class="form-group">
         <label class="form-label" for="manual-code" data-i18n="uniqueCode">Unique Code</label>
         <input id="manual-code" class="form-input" type="text" autocomplete="off"
+               oninput="checkCodeField(this)"
                onkeydown="if(event.key==='Enter')document.getElementById('manual-email').focus()" />
+        <div id="code-swap-warn" style="display:none;margin-top:6px;font-size:12px;color:#f87171;font-weight:500">⚠️ This looks like an email — please enter your <strong>Unique Code</strong> here, not your email.</div>
       </div>
       <div class="form-group">
         <label class="form-label" for="manual-email" data-i18n="emailPurchase">Email used for purchase</label>
@@ -230,10 +232,17 @@ function copyText(elId, btn) {
   });
 }
 
+function checkCodeField(input) {
+  const warn = document.getElementById('code-swap-warn');
+  if (warn) warn.style.display = input.value.includes('@') ? 'block' : 'none';
+}
+
 async function submitManual(){
-  const code  = document.getElementById('manual-code').value.trim();
-  const email = document.getElementById('manual-email').value.trim();
+  let code  = document.getElementById('manual-code').value.trim();
+  let email = document.getElementById('manual-email').value.trim();
   if(!code||!email){ alert(STRINGS[lang].errEmpty); return; }
+  // Auto-swap if user entered fields backwards
+  if(code.includes('@') && !email.includes('@')) { const t=code; code=email; email=t; }
   const btn = document.getElementById('manual-btn');
   btn.disabled=true;
   await verifyCode(code, email);
