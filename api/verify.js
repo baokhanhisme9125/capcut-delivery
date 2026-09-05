@@ -2,13 +2,11 @@
  * /api/verify?uniquecode=XXX&email=YYY
  *
  * 1. Check Orders sheet (idempotency)
- * 2. Verify via Digiseller API (api.digiseller.com — no DDoS-Guard)
- * 3. Auto-detect product variant (7d / 1m / 6m) from purchase options
- * 4. Deliver account from correct sheet + save to Orders
- *
- * Race-condition protection:
- *   - In-memory lock per unique code (prevents concurrent same-instance hits)
- *   - Double-check findOrderByCode before committing (prevents cross-instance race)
+ * 2. Verify via Digiseller API
+ * 3. Auto-detect product variant (7d / 1m / 6m)
+ * 4. Claim account atomically (CLAIMED: marker + verify read-back)
+ * 5. Double-check Orders AGAIN before saving (cross-instance race guard)
+ * 6. After save, detect & clean duplicate orders for same uniqueCode
  */
 const { verifyUniqueCode } = require('../lib/plati');
 const {
@@ -17,27 +15,9 @@ const {
   saveOrder,
   savePendingOrder,
   findOrderByCode,
+  findAllOrdersByCode,
+  deleteOrderRow,
 } = require('../lib/sheets');
-
-/* ── Concurrency guard (per serverless instance) ────────────────────── */
-const _pending = new Map();                    // code → timestamp
-const PENDING_TTL = 30_000;                    // auto-expire stale locks after 30s
-
-/* ── Global delivery mutex ── */
-let _deliveryLock = Promise.resolve();
-function acquireDeliveryLock() {
-  let release;
-  const prev = _deliveryLock;
-  _deliveryLock = new Promise(r => { release = r; });
-  return prev.then(() => release);
-}
-
-function cleanPending() {
-  const now = Date.now();
-  for (const [k, t] of _pending) {
-    if (now - t > PENDING_TTL) _pending.delete(k);
-  }
-}
 
 /* ── Helper: return already-delivered response ──────────────────────── */
 function alreadyDeliveredResponse(res, order) {
@@ -65,7 +45,6 @@ module.exports = async (req, res) => {
   let emailParam = (req.query.email      || '').trim().toLowerCase();
 
   // ── Auto-correct swapped fields ──────────────────────────────────────
-  // Happens when user enters email in the "Unique Code" box and code in "Email" box.
   if (code.includes('@') && /^[0-9A-Fa-f]{16}$/i.test(emailParam)) {
     console.log(`[verify] Detected swapped fields — auto-correcting. code="${code}" email="${emailParam}"`);
     const tmp = code; code = emailParam; emailParam = tmp;
@@ -75,32 +54,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ success: false, error: 'Missing or invalid unique code.' });
   }
 
-
   try {
-    /* ── 0. Concurrency guard (same Vercel instance) ─────────────── */
-    cleanPending();
-    if (_pending.has(code)) {
-      // Another request for the same code is already in-flight on this instance.
-      // Wait briefly then return whatever result it saved.
-      await new Promise(r => setTimeout(r, 3000));
-      const existing = await findOrderByCode(code);
-      if (existing) {
-        if (existing.isPending) {
-          return res.status(503).json({
-            success: false, outOfStock: true, isPending: true,
-            productName: existing.productName, orderId: existing.orderId || null,
-            error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
-          });
-        }
-        return alreadyDeliveredResponse(res, existing);
-      }
-      return res.status(429).json({
-        success: false,
-        error: 'This order is being processed. Please wait a moment and refresh.',
-      });
-    }
-    _pending.set(code, Date.now());
-
     /* ── 1. Idempotency: already delivered? ───────────────────────────── */
     const existing = await findOrderByCode(code);
     if (existing) {
@@ -141,59 +95,80 @@ module.exports = async (req, res) => {
       }
     }
 
-
     const { productType, productName, sheetName } = platiInfo;
 
-    /* ── ATOMIC: lock → get account → delete → save → release ── */
-    const releaseLock = await acquireDeliveryLock();
-    let account;
-    try {
-      // Re-check idempotency inside lock
-      const raceCheck = await findOrderByCode(code);
-      if (raceCheck && !raceCheck.isPending) {
-        releaseLock();
-        return alreadyDeliveredResponse(res, raceCheck);
-      }
-      if (raceCheck && raceCheck.isPending) {
-        releaseLock();
+    /* ── 4. Claim account atomically via CLAIMED: marker ───────────── */
+    const account = await getNextAvailableAccount(sheetName, code);
+    if (!account) {
+      // Check if pending order already saved by another instance
+      const pendingCheck = await findOrderByCode(code);
+      if (pendingCheck) {
         return res.status(503).json({
           success: false, outOfStock: true, isPending: true,
-          productName: raceCheck.productName, orderId: raceCheck.orderId || null,
+          productName: pendingCheck.productName, orderId: pendingCheck.orderId || null,
           error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
         });
       }
-
-      account = await getNextAvailableAccount(sheetName, code);
-      if (!account) {
-        await savePendingOrder({
-          uniqueCode: code,
-          buyerEmail: platiInfo.buyer || emailParam || 'unknown',
-          orderId: platiInfo.orderId,
-          productType, productName,
-        });
-        releaseLock();
-        console.log(`[verify] OOS — saved pending order for code=${code}`);
-        return res.status(503).json({
-          success: false, outOfStock: true, isPending: true,
-          productName, orderId: platiInfo.orderId || null,
-          error: `Out of stock for ${productName}. Your order is saved — please refresh (F5) to receive your account.`,
-        });
-      }
-
-      await deleteAccountRow(sheetName, account.rowIndex);
-      await saveOrder({
-        uniqueCode:      code,
-        buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
-        accountEmail:    account.email,
-        accountPassword: account.password,
-        orderId:         platiInfo.orderId,
-        productType,
-        productName,
+      await savePendingOrder({
+        uniqueCode: code,
+        buyerEmail: platiInfo.buyer || emailParam || 'unknown',
+        orderId: platiInfo.orderId,
+        productType, productName,
       });
-      releaseLock();
-    } catch (lockErr) { releaseLock(); throw lockErr; }
+      console.log(`[verify] OOS — saved pending order for code=${code}`);
+      return res.status(503).json({
+        success: false, outOfStock: true, isPending: true,
+        productName, orderId: platiInfo.orderId || null,
+        error: `Out of stock for ${productName}. Your order is saved — please refresh (F5) to receive your account.`,
+      });
+    }
 
-    /* ── 6. Return ───────────────────────────────────────────────────── */
+    /* ── 5. CRITICAL: Double-check Orders BEFORE saving ──────────────
+     *  Another Vercel instance may have saved an order for this code
+     *  while we were claiming the account. If so, release our claim
+     *  and return the existing order.
+     */
+    const raceCheck = await findOrderByCode(code);
+    if (raceCheck && !raceCheck.isPending) {
+      // Another instance already delivered — release our claimed row
+      console.warn(`[verify] Race detected for code=${code} — releasing claimed account`);
+      try {
+        // Revert the CLAIMED marker back to the original account data
+        await revertClaimedRow(sheetName, account.rowIndex, account.email, account.password);
+      } catch (e) { console.warn('[verify] Could not revert claimed row:', e.message); }
+      return alreadyDeliveredResponse(res, raceCheck);
+    }
+
+    /* ── 6. Delete claimed row + save order ──────────────────────────── */
+    const claimMark = `CLAIMED:${code}`;
+    await deleteAccountRow(sheetName, account.rowIndex, claimMark);
+    await saveOrder({
+      uniqueCode:      code,
+      buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
+      accountEmail:    account.email,
+      accountPassword: account.password,
+      orderId:         platiInfo.orderId,
+      productType,
+      productName,
+    });
+
+    /* ── 7. Post-save duplicate detection ────────────────────────────
+     *  If two instances both passed step 5 (extremely tight race),
+     *  there will now be 2+ rows in Orders for the same code.
+     *  Keep only the first one, delete the rest.
+     */
+    try {
+      const allOrders = await findAllOrdersByCode(code);
+      if (allOrders.length > 1) {
+        console.warn(`[verify] DUPLICATE DETECTED: ${allOrders.length} orders for code=${code}. Cleaning...`);
+        // Keep the first one (earliest), delete the rest
+        for (let i = 1; i < allOrders.length; i++) {
+          await deleteOrderRow(allOrders[i].rowIndex);
+        }
+      }
+    } catch (e) { console.warn('[verify] Post-save duplicate check error:', e.message); }
+
+    /* ── 8. Return ───────────────────────────────────────────────────── */
     return res.status(200).json({
       success: true,
       alreadyDelivered: false,
@@ -211,8 +186,24 @@ module.exports = async (req, res) => {
   } catch (err) {
     console.error('[verify] Unexpected error:', err.message);
     return res.status(500).json({ success: false, error: 'Server error. Please try again.' });
-  } finally {
-    /* Always release the lock so future requests for this code can proceed */
-    _pending.delete(code);
   }
 };
+
+/* ── Helper: revert a CLAIMED row back to original account ── */
+async function revertClaimedRow(sheetName, rowIndex, email, password) {
+  const { google } = require('googleapis');
+  let credentials;
+  try { credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || '{}'); }
+  catch { return; }
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
+  const sheets = google.sheets({ version: 'v4', auth });
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
+    range: `'${sheetName}'!A${rowIndex}`,
+    valueInputOption: 'RAW',
+    requestBody: { values: [[`${email}:${password}`]] },
+  });
+}
