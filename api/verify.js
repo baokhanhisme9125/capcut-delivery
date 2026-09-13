@@ -84,6 +84,27 @@ module.exports = async (req, res) => {
       return res.status(400).json({ success: false, error: err.message });
     }
 
+    /* ── 2b. Block orders before bot was created (27/08/2026) ── */
+    function parseDigiDate(str) {
+      if (!str) return NaN;
+      const d1 = new Date(str).getTime();
+      if (!isNaN(d1)) return d1;
+      const m = str.match(/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/);
+      if (m) return new Date(`${m[3]}-${m[2]}-${m[1]}T${m[4]}:${m[5]}:${m[6]}Z`).getTime();
+      const m2 = str.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+      if (m2) return new Date(`${m2[3]}-${m2[2]}-${m2[1]}T00:00:00Z`).getTime();
+      return NaN;
+    }
+    const CUTOFF_DATE = new Date('2026-08-27T00:00:00Z').getTime();
+    const orderDate = parseDigiDate(platiInfo.datePay);
+    if (!isNaN(orderDate) && orderDate < CUTOFF_DATE) {
+      console.warn(`[verify] BLOCKED old order: code=${code} datePay=${platiInfo.datePay}`);
+      return res.status(400).json({
+        success: false,
+        error: 'This order has expired. Delivery is no longer available. / Срок заказа истёк.',
+      });
+    }
+
     /* ── 3. Optional email check ─────────────────────────────────────── */
     const buyerEmail = (platiInfo.buyer || '').toLowerCase();
     if (emailParam && buyerEmail && buyerEmail !== 'unknown') {
