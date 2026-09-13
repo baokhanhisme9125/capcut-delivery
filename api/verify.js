@@ -95,7 +95,7 @@ module.exports = async (req, res) => {
       if (m2) return new Date(`${m2[3]}-${m2[2]}-${m2[1]}T00:00:00Z`).getTime();
       return NaN;
     }
-    const CUTOFF_DATE = new Date('2026-08-27T00:00:00Z').getTime();
+    const CUTOFF_DATE = new Date('2026-07-27T00:00:00Z').getTime();
     const orderDate = parseDigiDate(platiInfo.datePay);
     if (!isNaN(orderDate) && orderDate < CUTOFF_DATE) {
       console.warn(`[verify] BLOCKED old order: code=${code} datePay=${platiInfo.datePay}`);
