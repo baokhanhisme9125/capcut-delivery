@@ -54,6 +54,8 @@ module.exports = async (req, res) => {
     return res.status(400).json({ success: false, error: 'Missing or invalid unique code.' });
   }
 
+  let hasPendingOrder = false;
+
   try {
     /* ── 1. Idempotency: already delivered? ───────────────────────────── */
     const existing = await findOrderByCode(code);
@@ -66,14 +68,10 @@ module.exports = async (req, res) => {
           });
         }
       }
-      if (existing.isPending) {
-        return res.status(503).json({
-          success: false, outOfStock: true, isPending: true,
-          productName: existing.productName, orderId: existing.orderId || null,
-          error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
-        });
-      }
-      return alreadyDeliveredResponse(res, existing);
+      if (!existing.isPending) return alreadyDeliveredResponse(res, existing);
+      // isPending: true — don't return OOS, try to deliver now
+      hasPendingOrder = true;
+      console.log(`[verify] Pending order found for code=${code} — retrying delivery from stock`);
     }
 
     /* ── 2. Verify via Digiseller API (auto-detects variant) ─────────── */
@@ -125,6 +123,15 @@ module.exports = async (req, res) => {
     /* ── 4. Claim account atomically via CLAIMED: marker ───────────── */
     const account = await getNextAvailableAccount(sheetName, code);
     if (!account) {
+      // Still OOS — if pending order already exists, don't save duplicate
+      if (hasPendingOrder) {
+        console.log(`[verify] Still OOS for pending code=${code}`);
+        return res.status(503).json({
+          success: false, outOfStock: true, isPending: true,
+          productName: productName || 'CapCut Pro', orderId: platiInfo ? platiInfo.orderId : null,
+          error: 'Out of stock — your order is saved. Please refresh (F5) periodically to receive your account.',
+        });
+      }
       // Check if pending order already saved by another instance
       const pendingCheck = await findOrderByCode(code);
       if (pendingCheck) {
@@ -177,17 +184,15 @@ module.exports = async (req, res) => {
       productName,
     });
 
-    /* ── 7. Post-save duplicate detection ────────────────────────────
-     *  If two instances both passed step 5 (extremely tight race),
-     *  there will now be 2+ rows in Orders for the same code.
-     *  Keep only the first one, delete the rest.
+    /* ── 7. Post-save: dedup + clean up pending rows ────────────────
+     *  Keep the LAST row (just appended = completed).
+     *  Delete all earlier rows (pending + race duplicates).
      */
     try {
       const allOrders = await findAllOrdersByCode(code);
       if (allOrders.length > 1) {
-        console.warn(`[verify] DUPLICATE DETECTED: ${allOrders.length} orders for code=${code}. Cleaning...`);
-        // Keep the first one (earliest), delete the rest
-        for (let i = 1; i < allOrders.length; i++) {
+        console.warn(`[verify] ${allOrders.length} rows for code=${code} — keeping last (completed), deleting earlier`);
+        for (let i = 0; i < allOrders.length - 1; i++) {
           await deleteOrderRow(allOrders[i].rowIndex);
         }
       }
