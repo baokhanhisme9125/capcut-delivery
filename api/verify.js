@@ -12,6 +12,7 @@ const { verifyUniqueCode } = require('../lib/plati');
 const {
   getNextAvailableAccount,
   deleteAccountRow,
+  revertClaimedRow,
   saveOrder,
   savePendingOrder,
   findOrderByCode,
@@ -162,18 +163,26 @@ module.exports = async (req, res) => {
      */
     const raceCheck = await findOrderByCode(code);
     if (raceCheck && !raceCheck.isPending) {
-      // Another instance already delivered — release our claimed row
-      console.warn(`[verify] Race detected for code=${code} — releasing claimed account`);
+      console.warn(`[verify] Race detected for code=${code} — reverting claimed account`);
       try {
-        // Revert the CLAIMED marker back to the original account data
-        await revertClaimedRow(sheetName, account.rowIndex, account.email, account.password);
-      } catch (e) { console.warn('[verify] Could not revert claimed row:', e.message); }
+        await revertClaimedRow(sheetName, account.claimMark);
+      } catch (e) { console.warn('[verify] Could not revert race claim:', e.message); }
       return alreadyDeliveredResponse(res, raceCheck);
     }
 
+    /* ── 5b. Duplicate account check — uses cached deliveredSet ── */
+    const normalizedAccKey = `${account.email}:${account.password}`.toLowerCase().replace(/\s*:\s*/, ':');
+    const accountDup = account._deliveredSet ? account._deliveredSet.has(normalizedAccKey) : false;
+    if (accountDup) {
+      console.warn(`[verify] DUPLICATE ACCOUNT BLOCKED: ${account.email} already delivered. Reverting claim for code=${code}`);
+      try {
+        await revertClaimedRow(sheetName, account.claimMark);
+      } catch (e) { console.warn('[verify] Could not revert duplicate claim:', e.message); }
+      return res.status(500).json({ success: false, error: 'Server error — account conflict detected. Please try again.' });
+    }
+
     /* ── 6. Delete claimed row + save order ──────────────────────────── */
-    const claimMark = `CLAIMED:${code}`;
-    await deleteAccountRow(sheetName, account.rowIndex, claimMark);
+    await deleteAccountRow(sheetName, account.rowIndex, account.claimMark);
     await saveOrder({
       uniqueCode:      code,
       buyerEmail:      platiInfo.buyer || emailParam || 'unknown',
@@ -218,22 +227,3 @@ module.exports = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Server error. Please try again.' });
   }
 };
-
-/* ── Helper: revert a CLAIMED row back to original account ── */
-async function revertClaimedRow(sheetName, rowIndex, email, password) {
-  const { google } = require('googleapis');
-  let credentials;
-  try { credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || '{}'); }
-  catch { return; }
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-  const sheets = google.sheets({ version: 'v4', auth });
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
-    range: `'${sheetName}'!A${rowIndex}`,
-    valueInputOption: 'RAW',
-    requestBody: { values: [[`${email}:${password}`]] },
-  });
-}
